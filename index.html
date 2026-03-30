@@ -10,25 +10,33 @@
             font-family: 'Courier New', monospace; 
             margin: 0; 
             padding: 0; 
-            background: #0a0a0a; 
+            background: #000000; 
             color: #00ff9f; 
             line-height: 1.75;
-            background-image: 
-                linear-gradient(rgba(0, 255, 159, 0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 159, 0.04) 1px, transparent 1px);
-            background-size: 40px 40px;
+            overflow-x: hidden;
+        }
+        canvas { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            z-index: -1; 
+            opacity: 0.15;
         }
         header { 
-            background: linear-gradient(180deg, #001a00, #000000); 
+            background: rgba(0, 20, 0, 0.95); 
             padding: 110px 20px 80px; 
             text-align: center; 
             border-bottom: 1px solid var(--accent);
+            position: relative;
+            z-index: 1;
         }
         h1 { 
             font-size: 3.8rem; 
             margin: 0; 
             color: var(--accent); 
-            letter-spacing: 6px;
+            letter-spacing: 8px;
             text-transform: uppercase;
             font-weight: 400;
         }
@@ -36,12 +44,14 @@
             font-size: 1.35rem; 
             margin: 20px 0 0; 
             opacity: 0.9; 
-            letter-spacing: 3px;
+            letter-spacing: 4px;
         }
         section { 
             max-width: 860px; 
             margin: 0 auto; 
             padding: 75px 20px; 
+            position: relative;
+            z-index: 1;
         }
         h2 { 
             color: var(--accent); 
@@ -93,31 +103,11 @@
             opacity: 0.7;
             border-top: 1px solid var(--accent);
         }
-        .scanline {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                to bottom,
-                transparent 50%,
-                rgba(0, 255, 159, 0.025) 50%
-            );
-            background-size: 100% 4px;
-            pointer-events: none;
-            z-index: 9999;
-            animation: scan 6s linear infinite;
-        }
-        @keyframes scan {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100%); }
-        }
     </style>
 </head>
 <body>
 
-    <div class="scanline"></div>
+    <canvas id="matrix"></canvas>
 
     <header>
         <h1>TRUJARA</h1>
@@ -136,7 +126,7 @@
         
         <p>Decentralized AI distributes compute and inference across many independent nodes operated by participants worldwide. This model offers substantially better privacy because no single entity can access or control the entire system.</p>
         
-        <p>By running high-quality nodes, Trujara contributes to building a more private, resilient, and censorship-resistant AI ecosystem.</p>
+        <p>By running high-quality nodes, Trujara contributes to building a more private, resilient, and open AI ecosystem.</p>
     </section>
 
     <section>
@@ -145,21 +135,58 @@
             <li>Professional node deployment and configuration</li>
             <li>Performance optimization and monitoring</li>
             <li>Hardware scaling and infrastructure management</li>
-            <li>Reliable uptime</li>
+            <li>Reliable uptime and technical support</li>
         </ul>
     </section>
 
     <section style="text-align:center; padding-top: 60px;">
         <h2>GET IN TOUCH</h2>
-        <a href="https://docs.google.com/forms/d/e/1FAIpQLSeOSSZ_lAFjtFmQmZPXYrXcJZuTnPLz7dJBsE-gWHZzzwon9A/viewform?usp=dialog" target="_blank" class="contact-btn">
+        <a href="YOUR-GOOGLE-FORM-LINK-HERE" target="_blank" class="contact-btn">
             ✉️ SEND MESSAGE
         </a>
         <p style="margin-top: 30px; opacity: 0.8;">We typically respond within 24 hours.</p>
     </section>
 
     <footer>
-        © 2026 TRUJARA • Building the foundation for decentralized AI
+        © 2026 Trujara • Building reliable infrastructure for decentralized AI
     </footer>
+
+    <script>
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+
+        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth;
+
+        const chars = "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワン";
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function draw() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#00ff9f';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars[Math.floor(Math.random() * chars.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        setInterval(draw, 35);
+
+        window.addEventListener('resize', () => {
+            canvas.height = window.innerHeight;
+            canvas.width = window.innerWidth;
+        });
+    </script>
 
 </body>
 </html>
