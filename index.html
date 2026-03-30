@@ -3,67 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trujara N — Decentralized AI Node Services</title>
+    <title>Trujara — Decentralized AI Node Services</title>
     <style>
-        :root {
-            --accent: #00ff9f;
-            --bg: #0a0a0a;
-            --text: #00ff9f;
-            --dim: #00cc7a;
-        }
-        body {
-            font-family: 'Courier New', monospace;
-            margin: 0;
-            padding: 0;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.7;
+        :root { --accent: #00ff9f; }
+        body { 
+            font-family: 'Courier New', monospace; 
+            margin: 0; 
+            padding: 0; 
+            background: #0a0a0a; 
+            color: #00ff9f; 
+            line-height: 1.75;
             background-image: 
-                linear-gradient(rgba(0, 255, 159, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 159, 0.03) 1px, transparent 1px);
+                linear-gradient(rgba(0, 255, 159, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 159, 0.04) 1px, transparent 1px);
             background-size: 40px 40px;
         }
-        header {
-            background: linear-gradient(180deg, #001a00, #000000);
-            padding: 100px 20px 80px;
-            text-align: center;
+        header { 
+            background: linear-gradient(180deg, #001a00, #000000); 
+            padding: 110px 20px 80px; 
+            text-align: center; 
             border-bottom: 1px solid var(--accent);
         }
-        h1 {
-            font-size: 3.6rem;
-            margin: 0;
-            color: var(--accent);
-            letter-spacing: 4px;
+        h1 { 
+            font-size: 3.8rem; 
+            margin: 0; 
+            color: var(--accent); 
+            letter-spacing: 6px;
             text-transform: uppercase;
             font-weight: 400;
         }
-        .tagline {
-            font-size: 1.3rem;
-            margin: 20px 0 0;
-            opacity: 0.9;
+        .tagline { 
+            font-size: 1.35rem; 
+            margin: 20px 0 0; 
+            opacity: 0.9; 
+            letter-spacing: 3px;
+        }
+        section { 
+            max-width: 860px; 
+            margin: 0 auto; 
+            padding: 75px 20px; 
+        }
+        h2 { 
+            color: var(--accent); 
+            border-bottom: 1px dashed var(--accent); 
+            padding-bottom: 12px; 
+            margin-bottom: 32px;
             letter-spacing: 2px;
         }
-        section {
-            max-width: 860px;
-            margin: 0 auto;
-            padding: 70px 20px;
+        ul { 
+            list-style: none; 
+            padding: 0; 
         }
-        h2 {
-            color: var(--accent);
-            border-bottom: 1px dashed var(--dim);
-            padding-bottom: 12px;
-            margin-bottom: 30px;
-            font-size: 1.6rem;
-            letter-spacing: 2px;
-        }
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-        li {
-            margin: 16px 0;
-            padding-left: 20px;
+        li { 
+            margin: 16px 0; 
+            padding-left: 20px; 
             position: relative;
+            font-size: 1.08rem;
         }
         li:before {
             content: ">";
@@ -74,15 +69,15 @@
         .contact-btn {
             display: inline-flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
             background: transparent;
             border: 2px solid var(--accent);
             color: var(--accent);
-            padding: 16px 32px;
+            padding: 18px 36px;
             border-radius: 0;
             text-decoration: none;
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             transition: all 0.3s;
             margin-top: 20px;
         }
@@ -92,56 +87,34 @@
         }
         footer {
             text-align: center;
-            padding: 50px 20px;
+            padding: 60px 20px;
             background: #000;
             font-size: 0.9rem;
-            opacity: 0.6;
+            opacity: 0.7;
             border-top: 1px solid var(--accent);
-        }
-        .scanline {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                to bottom,
-                transparent 50%,
-                rgba(0, 255, 159, 0.03) 50%
-            );
-            background-size: 100% 4px;
-            pointer-events: none;
-            z-index: 9999;
-            animation: scan 4s linear infinite;
-        }
-        @keyframes scan {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100%); }
         }
     </style>
 </head>
 <body>
 
-    <div class="scanline"></div>
-
     <header>
-        <h1>TRUJARA N</h1>
+        <h1>TRUJARA</h1>
         <p class="tagline">DECENTRALIZED AI NODE SERVICES</p>
     </header>
 
     <section>
-        <h2>ABOUT TRUJARA N</h2>
-        <p>Trujara N is a professional service provider specializing in the deployment, optimization, and management of nodes for decentralized AI platforms.</p>
+        <h2>ABOUT TRUJARA</h2>
+        <p>Trujara is a professional service provider specializing in the deployment, optimization, and management of nodes for decentralized AI platforms.</p>
         <p>We focus on delivering reliable, high-performance node infrastructure to support the growth and resilience of decentralized artificial intelligence.</p>
     </section>
 
     <section>
         <h2>DECENTRALIZED vs CENTRALIZED AI</h2>
-        <p>Centralized AI concentrates data, models, and compute in the hands of a few large organizations. This creates serious privacy risks, censorship vulnerabilities, and dangerous single points of failure.</p>
+        <p>Centralized AI systems concentrate data, models, and computing power in the hands of a few large organizations. This creates serious privacy risks, potential censorship, and single points of failure.</p>
         
-        <p>Decentralized AI distributes compute and inference across many independent nodes. No single entity can access or control the entire system. This model offers significantly better privacy, resilience, and resistance to censorship.</p>
+        <p>Decentralized AI distributes compute and inference across many independent nodes operated by participants worldwide. This model offers substantially better privacy because no single entity can access or control the entire system.</p>
         
-        <p>Trujara N contributes to this decentralized future by operating high-quality, independent nodes.</p>
+        <p>By running high-quality nodes, Trujara contributes to building a more private, resilient, and open AI ecosystem.</p>
     </section>
 
     <section>
@@ -163,7 +136,7 @@
     </section>
 
     <footer>
-        © 2026 TRUJARA N • OPERATING IN THE SHADOWS OF CENTRALIZED SYSTEMS
+        © 2026 Trujara • Building the foundation for decentralized AI
     </footer>
 
 </body>
