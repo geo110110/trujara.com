@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trujara — Decentralized AI Node Services</title>
     <style>
+        :root { --accent: #00ddff; }
         body { 
-            font-family: Arial, Helvetica, sans-serif; 
+            font-family: 'Segoe UI', Arial, sans-serif; 
             margin: 0; 
             padding: 0; 
             background: #0a0a0a; 
@@ -15,35 +16,54 @@
         }
         header { 
             background: linear-gradient(135deg, #001122, #003355); 
-            padding: 80px 20px; 
+            padding: 90px 20px 70px; 
             text-align: center; 
         }
         h1 { 
-            font-size: 3.2rem; 
+            font-size: 3.4rem; 
             margin: 0; 
-            color: #00ddff; 
+            color: var(--accent); 
+            letter-spacing: -1px;
         }
         .tagline { 
-            font-size: 1.35rem; 
-            margin: 15px 0 0; 
+            font-size: 1.45rem; 
+            margin: 12px 0 0; 
             opacity: 0.95; 
         }
         section { 
-            max-width: 820px; 
+            max-width: 860px; 
             margin: 0 auto; 
-            padding: 60px 20px; 
+            padding: 70px 20px; 
         }
         h2 { 
-            color: #00ddff; 
-            border-bottom: 2px solid #00ddff; 
-            padding-bottom: 12px; 
+            color: var(--accent); 
+            border-bottom: 2px solid var(--accent); 
+            padding-bottom: 14px; 
+            margin-bottom: 24px;
         }
-        footer { 
-            text-align: center; 
-            padding: 40px 20px; 
-            background: #111111; 
-            font-size: 0.95rem; 
-            opacity: 0.75; 
+        .contact-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: #112233;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .contact-btn:hover {
+            background: var(--accent);
+            color: #000;
+            transform: translateY(-2px);
+        }
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            background: #111;
+            font-size: 0.95rem;
+            opacity: 0.7;
         }
     </style>
 </head>
@@ -56,27 +76,34 @@
 
     <section>
         <h2>About Trujara</h2>
-        <p>Trujara is a professional node service provider for decentralized AI platforms.</p>
-        <p>We operate, optimize, and scale nodes to support the growth of decentralized artificial intelligence infrastructure.</p>
+        <p>Trujara is a professional service provider specializing in the operation and management of nodes for decentralized AI platforms.</p>
+        <p>We deliver reliable deployment, optimization, monitoring, and scaling of nodes to support the growth of decentralized artificial intelligence infrastructure.</p>
     </section>
 
     <section>
         <h2>Decentralized AI vs Centralized AI</h2>
-        <p>Centralized AI systems rely on a small number of powerful companies that control the data, models, and compute. This creates risks around privacy, censorship, and single points of failure.</p>
-        
-        <p>Decentralized AI distributes compute, inference, and control across many independent nodes. This approach offers significantly better privacy because data and processing are not concentrated in one location. No single entity can access or manipulate the entire system.</p>
-        
-        <p>By running nodes, Trujara helps strengthen this decentralized model — making AI more private, resilient, and resistant to censorship.</p>
+        <p>Centralized AI systems rely on a small number of large companies that control the data, models, and computing power. This creates serious privacy risks, potential censorship, and single points of failure.</p>
+        <p>Decentralized AI distributes compute and inference across many independent nodes. This approach significantly improves privacy because no single entity can access or control the entire system. It makes AI more resilient, private, and resistant to censorship.</p>
+        <p>By operating high-quality nodes, Trujara helps strengthen this decentralized model.</p>
     </section>
 
     <section>
         <h2>Our Services</h2>
         <ul>
-            <li>Professional node deployment and management</li>
+            <li>Professional node deployment and configuration</li>
             <li>Performance optimization and monitoring</li>
-            <li>Hardware scaling (from single devices to multiple high-capacity machines)</li>
+            <li>Hardware scaling (single device to multiple high-capacity machines)</li>
             <li>Reliable uptime and technical support</li>
         </ul>
+    </section>
+
+    <section style="text-align:center;">
+        <h2>Get in Touch</h2>
+        <a href="YOUR-GOOGLE-FORM-LINK-HERE" target="_blank" class="contact-btn">
+            <span style="font-size:1.4rem;">✉️</span>
+            Send us a message
+        </a>
+        <p style="margin-top:20px; opacity:0.8;">We typically respond within 24 hours.</p>
     </section>
 
     <footer>
