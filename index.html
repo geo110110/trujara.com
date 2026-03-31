@@ -21,16 +21,26 @@
             left: 0; 
             width: 100%; 
             height: 100%; 
-            z-index: -1; 
+            z-index: -2; 
             opacity: 0.18;
         }
+        header, footer { 
+            background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.85)), 
+                        url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?ixlib=rb-4.0.3&auto=format&fit=crop&q=80') center/cover no-repeat;
+            position: relative;
+            z-index: 1;
+        }
         header { 
-            background: rgba(0, 20, 0, 0.92); 
             padding: 110px 20px 80px; 
             text-align: center; 
             border-bottom: 1px solid var(--accent);
-            position: relative;
-            z-index: 1;
+        }
+        footer { 
+            padding: 60px 20px; 
+            text-align: center; 
+            font-size: 0.9rem;
+            opacity: 0.85;
+            border-top: 1px solid var(--accent);
         }
         h1 { 
             font-size: 3.8rem; 
@@ -95,16 +105,6 @@
             background: var(--accent);
             color: #000;
         }
-        footer {
-            text-align: center;
-            padding: 60px 20px;
-            background: #000;
-            font-size: 0.9rem;
-            opacity: 0.75;
-            border-top: 1px solid var(--accent);
-            position: relative;
-            z-index: 1;
-        }
     </style>
 </head>
 <body>
@@ -143,7 +143,7 @@
 
     <section style="text-align:center; padding-top: 60px;">
         <h2>GET IN TOUCH</h2>
-        <a href="https://docs.google.com/forms/d/e/1FAIpQLSeOSSZ_lAFjtFmQmZPXYrXcJZuTnPLz7dJBsE-gWHZzzwon9A/viewform?usp=dialog" target="_blank" class="contact-btn">
+        <a href="Yhttps://docs.google.com/forms/d/e/1FAIpQLSeOSSZ_lAFjtFmQmZPXYrXcJZuTnPLz7dJBsE-gWHZzzwon9A/viewform?usp=dialog" target="_blank" class="contact-btn">
             ✉️ SEND MESSAGE
         </a>
         <p style="margin-top: 30px; opacity: 0.8;">We typically respond within 24 hours.</p>
@@ -168,7 +168,7 @@
         const fontSize = 16;
         const columns = Math.floor(canvas.width / fontSize);
         const drops = new Array(columns).fill(1);
-        const speeds = new Array(columns).fill(0).map(() => Math.random() * 1.2 + 0.35);
+        const speeds = new Array(columns).fill(0).map(() => Math.random() * 1.1 + 0.35);
 
         function draw() {
             ctx.fillStyle = 'rgba(0, 0, 0, 0.075)';
