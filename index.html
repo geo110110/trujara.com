@@ -141,7 +141,7 @@
 
     <section style="text-align:center; padding-top: 60px;">
         <h2>GET IN TOUCH</h2>
-        <a href="https://docs.google.com/forms/d/e/1FAIpQLSeOSSZ_lAFjtFmQmZPXYrXcJZuTnPLz7dJBsE-gWHZzzwon9A/viewform?usp=dialog" target="_blank" class="contact-btn">
+        <a href="YOUR-GOOGLE-FORM-LINK-HERE" target="_blank" class="contact-btn">
             ✉️ SEND MESSAGE
         </a>
         <p style="margin-top: 30px; opacity: 0.8;">We typically respond within 24 hours.</p>
@@ -155,21 +155,21 @@
         const canvas = document.getElementById('matrix');
         const ctx = canvas.getContext('2d');
 
-        function resizeCanvas() {
+        function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
+        resize();
+        window.addEventListener('resize', resize);
 
         const chars = "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワン";
-        const fontSize = 18;                    // Larger characters
+        const fontSize = 16;
         const columns = Math.floor(canvas.width / fontSize);
         const drops = new Array(columns).fill(1);
-        const speeds = new Array(columns).fill(0).map(() => Math.random() * 0.8 + 0.3); // Varied speeds (mostly slower)
+        const speeds = new Array(columns).fill(0).map(() => Math.random() * 1.1 + 0.35); // varied speeds
 
         function draw() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.07)';   // Slower fade for longer trails
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.065)';   // slower fade for longer trails
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             ctx.fillStyle = '#00ff9f';
@@ -179,15 +179,15 @@
                 const text = chars[Math.floor(Math.random() * chars.length)];
                 ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
-                // More random reset for broken, organic Matrix feel
-                if (drops[i] * fontSize > canvas.height && Math.random() > 0.935) {
+                // Random reset for broken, organic feel
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.925) {
                     drops[i] = 0;
                 }
                 drops[i] += speeds[i];
             }
         }
 
-        setInterval(draw, 50);   // Slower interval for more cinematic feel
+        setInterval(draw, 42);   // balanced speed for cinematic feel
 
         // Initial draw
         draw();
