@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trujara — Decentralized AI Node Services</title>
+    <title>Trujara • Professional Decentralized GPU Infrastructure</title>
     <style>
         :root { --accent: #00ff9f; }
         body { 
@@ -12,7 +12,7 @@
             padding: 0; 
             background: #000000; 
             color: #00ff9f; 
-            line-height: 1.75;
+            line-height: 1.7;
             overflow-x: hidden;
         }
         canvas { 
@@ -22,61 +22,54 @@
             width: 100%; 
             height: 100%; 
             z-index: -2; 
-            opacity: 0.18;
+            opacity: 0.15;
         }
         header { 
-            background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.85)), 
+            background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.92)), 
                         url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?ixlib=rb-4.0.3&auto=format&fit=crop&q=80') center/cover no-repeat;
-            padding: 110px 20px 80px; 
+            padding: 120px 20px 90px; 
             text-align: center; 
             border-bottom: 1px solid var(--accent);
             position: relative;
             z-index: 1;
         }
-        footer { 
-            background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.85)), 
-                        url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?ixlib=rb-4.0.3&auto=format&fit=crop&q=80') center/cover no-repeat;
-            padding: 60px 20px; 
-            text-align: center; 
-            font-size: 0.9rem;
-            opacity: 0.85;
-            border-top: 1px solid var(--accent);
-        }
         h1 { 
-            font-size: 3.8rem; 
+            font-size: 3.6rem; 
             margin: 0; 
             color: var(--accent); 
-            letter-spacing: 8px;
+            letter-spacing: 6px;
             text-transform: uppercase;
             font-weight: 400;
         }
         .tagline { 
-            font-size: 1.35rem; 
-            margin: 20px 0 0; 
+            font-size: 1.3rem; 
+            margin: 18px 0 0; 
             opacity: 0.9; 
-            letter-spacing: 4px;
+            letter-spacing: 3px;
         }
         section { 
-            max-width: 860px; 
+            max-width: 920px; 
             margin: 0 auto; 
-            padding: 75px 20px; 
+            padding: 70px 20px; 
             position: relative;
             z-index: 1;
         }
         h2 { 
             color: var(--accent); 
             border-bottom: 1px dashed var(--accent); 
-            padding-bottom: 12px; 
-            margin-bottom: 32px;
+            padding-bottom: 14px; 
+            margin-bottom: 35px;
             letter-spacing: 2px;
+            font-size: 1.65rem;
         }
+        p { font-size: 1.08rem; }
         ul { 
             list-style: none; 
             padding: 0; 
         }
         li { 
-            margin: 16px 0; 
-            padding-left: 20px; 
+            margin: 14px 0; 
+            padding-left: 22px; 
             position: relative;
             font-size: 1.08rem;
         }
@@ -93,17 +86,26 @@
             background: transparent;
             border: 2px solid var(--accent);
             color: var(--accent);
-            padding: 18px 36px;
+            padding: 18px 40px;
             border-radius: 0;
             text-decoration: none;
             font-weight: 600;
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             transition: all 0.3s;
-            margin-top: 20px;
+            margin-top: 15px;
         }
         .contact-btn:hover {
             background: var(--accent);
             color: #000;
+        }
+        footer { 
+            background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.92)), 
+                        url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?ixlib=rb-4.0.3&auto=format&fit=crop&q=80') center/cover no-repeat;
+            text-align: center; 
+            padding: 50px 20px; 
+            font-size: 0.95rem;
+            opacity: 0.85;
+            border-top: 1px solid var(--accent);
         }
     </style>
 </head>
@@ -111,52 +113,92 @@
 
     <canvas id="matrix"></canvas>
 
+    <!-- HERO -->
     <header>
         <h1>TRUJARA</h1>
-        <p class="tagline">DECENTRALIZED AI NODE SERVICES</p>
+        <p class="tagline">PROFESSIONAL DECENTRALIZED GPU INFRASTRUCTURE</p>
     </header>
 
+    <!-- ABOUT -->
     <section>
         <h2>ABOUT TRUJARA</h2>
-        <p>Trujara is a professional service provider specializing in the deployment, optimization, and management of nodes for decentralized AI platforms.</p>
-        <p>We focus on delivering reliable, high-performance node infrastructure to support the growth and resilience of decentralized artificial intelligence.</p>
+        <p>Trujara is a professional AI Service Provider (AISP) focused on building and operating high-performance, always-on GPU infrastructure for decentralized compute networks.</p>
+        <p>We specialize in reliable node operation and managed infrastructure services across established decentralized GPU networks. Our goal is to deliver consistent uptime and performance for both our own operations and clients who require dependable compute capacity.</p>
     </section>
 
-    <section>
-        <h2>DECENTRALIZED vs CENTRALIZED AI</h2>
-        <p>Centralized AI systems concentrate data, models, and computing power in the hands of a few large organizations. This creates serious privacy risks, potential censorship, and single points of failure.</p>
-        
-        <p>Decentralized AI distributes compute and inference across many independent nodes operated by participants worldwide. This model offers substantially better privacy because no single entity can access or control the entire system.</p>
-    </section>
-
-    <section>
-        <h2>DePIN and Privacy</h2>
-        <p>DePIN (Decentralized Physical Infrastructure Networks) allows computing resources to be provided by a global network of independent operators rather than centralized data centers. This significantly enhances privacy because data and processing are not concentrated in the hands of a few powerful entities.</p>
-        <p>Trujara supports the DePIN model by operating reliable nodes that strengthen the decentralized AI ecosystem and help protect user privacy.</p>
-    </section>
-
+    <!-- SERVICES -->
     <section>
         <h2>OUR SERVICES</h2>
         <ul>
-            <li>Professional node deployment and configuration</li>
-            <li>Performance optimization and monitoring</li>
-            <li>Hardware scaling and infrastructure management</li>
-            <li>Reliable uptime and technical support</li>
+            <li>High-performance GPU node operation on leading decentralized networks</li>
+            <li>Managed node services for operators and investors seeking hands-off reliable infrastructure</li>
+            <li>24/7 monitoring, maintenance, and performance optimization</li>
+            <li>Future: Dedicated inference capacity and API access for AI workloads</li>
         </ul>
     </section>
 
-    <section style="text-align:center; padding-top: 60px;">
+    <!-- INFRASTRUCTURE & RELIABILITY -->
+    <section>
+        <h2>INFRASTRUCTURE & RELIABILITY</h2>
+        <p>Trujara operates enterprise-grade GPU systems designed for demanding 24/7 decentralized compute workloads.</p>
+
+        <h3 style="color:#00ff9f; margin-top:35px; font-size:1.25rem;">Hardware</h3>
+        <ul>
+            <li>High-VRAM NVIDIA GPUs (RTX 5090 / 4090 class) with enterprise cooling</li>
+            <li>High-core-count CPUs and ample system memory</li>
+            <li>Redundant power delivery with UPS backup</li>
+        </ul>
+
+        <h3 style="color:#00ff9f; margin-top:35px; font-size:1.25rem;">Internet Connectivity & Redundancy</h3>
+        <p>Reliable connectivity is critical for node uptime and earning potential. Trujara has built multiple layers of protection:</p>
+        <ul>
+            <li><strong>Primary Connection:</strong> High-speed fiber optic link (300 Mbps+ symmetric) with low latency</li>
+            <li><strong>Secondary Backup:</strong> Independent secondary ISP connection from a different provider with automatic failover</li>
+            <li><strong>Tertiary Redundancy:</strong> 4G/5G cellular backup as final safety net</li>
+            <li><strong>Power Protection:</strong> UPS systems protect both compute hardware and networking equipment</li>
+            <li><strong>Monitoring:</strong> Continuous monitoring with automated alerts and seamless failover</li>
+        </ul>
+        <p>This multi-layered approach ensures maximum uptime and protects against both internet outages and power-related failures.</p>
+    </section>
+
+    <!-- WHY TRUJARA -->
+    <section>
+        <h2>WHY TRUJARA</h2>
+        <ul>
+            <li>Professional One Person Company (OPC) structure with proper governance</li>
+            <li>Premium hardware with proper liquid cooling for 24/7 operation</li>
+            <li>Multi-network diversification across established decentralized compute protocols</li>
+            <li>Focus on real utilization, uptime, and long-term operator economics</li>
+            <li>Transparent and professional approach to infrastructure services</li>
+        </ul>
+    </section>
+
+    <!-- CONTACT -->
+    <section style="text-align:center; padding-top: 60px; padding-bottom: 40px;">
         <h2>GET IN TOUCH</h2>
-        <a href="https://docs.google.com/forms/d/e/1FAIpQLSeOSSZ_lAFjtFmQmZPXYrXcJZuTnPLz7dJBsE-gWHZzzwon9A/viewform?usp=dialog" target="_blank" class="contact-btn">
-            ✉️ SEND MESSAGE
+        
+        <p style="max-width: 620px; margin: 0 auto 30px; font-size: 1.1rem;">
+            We operate professional-grade GPU infrastructure for decentralized compute networks. 
+            Whether you are looking for <strong>managed node services</strong>, <strong>dedicated capacity</strong>, 
+            or partnership opportunities, feel free to reach out.
+        </p>
+        
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSeOSSZ_lAFjtFmQmZPXYrXcJZuTnPLz7dJBsE-gWHZzzwon9A/viewform?usp=dialog" 
+           target="_blank" 
+           class="contact-btn">
+            ✉️ CONTACT US
         </a>
-        <p style="margin-top: 30px; opacity: 0.8;">We typically respond within 24 hours.</p>
+        
+        <p style="margin-top: 25px; opacity: 0.8; font-size: 1rem;">
+            We typically respond within 24 hours.
+        </p>
     </section>
 
     <footer>
-        © 2026 Trujara • Building reliable infrastructure for decentralized AI
+        © 2026 Trujara • Building reliable infrastructure for decentralized compute
     </footer>
 
+    <!-- ORIGINAL MATRIX RAIN SCRIPT -->
     <script>
         const canvas = document.getElementById('matrix');
         const ctx = canvas.getContext('2d');
@@ -193,7 +235,6 @@
         }
 
         setInterval(draw, 45);
-
         draw();
     </script>
 
