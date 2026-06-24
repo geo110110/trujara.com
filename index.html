@@ -165,7 +165,7 @@
     <section>
         <h2>WHY TRUJARA</h2>
         <ul>
-            <li>Professional One Person Company (OPC) structure with proper governance</li>
+            <li>Professional company structure focused on reliability and long-term operations</li>
             <li>Premium hardware with proper liquid cooling for 24/7 operation</li>
             <li>Multi-network diversification across established decentralized compute protocols</li>
             <li>Focus on real utilization, uptime, and long-term operator economics</li>
@@ -198,45 +198,6 @@
         © 2026 Trujara • Building reliable infrastructure for decentralized compute
     </footer>
 
-    <!-- ORIGINAL MATRIX RAIN SCRIPT -->
+    <!-- MATRIX RAIN (Full screen from top to bottom) -->
     <script>
-        const canvas = document.getElementById('matrix');
-        const ctx = canvas.getContext('2d');
-
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resize();
-        window.addEventListener('resize', resize);
-
-        const chars = "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワン";
-        const fontSize = 16;
-        const columns = Math.floor(canvas.width / fontSize);
-        const drops = new Array(columns).fill(1);
-        const speeds = new Array(columns).fill(0).map(() => Math.random() * 1.1 + 0.35);
-
-        function draw() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.075)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            ctx.fillStyle = '#00ff9f';
-            ctx.font = fontSize + 'px monospace';
-
-            for (let i = 0; i < drops.length; i++) {
-                const text = chars[Math.floor(Math.random() * chars.length)];
-                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-                if (drops[i] * fontSize > canvas.height && Math.random() > 0.93) {
-                    drops[i] = 0;
-                }
-                drops[i] += speeds[i];
-            }
-        }
-
-        setInterval(draw, 45);
-        draw();
-    </script>
-
-</body>
-</html>
+        const canvas = document.getElementBy
