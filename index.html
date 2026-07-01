@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trujara • Professional Decentralized Infrastructure</title>
+    <title>Trujara • Coming Soon</title>
     <style>
         :root { --accent: #00ff9f; }
         body { 
@@ -28,62 +28,39 @@
         header { 
             background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.92)), 
                         url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?ixlib=rb-4.0.3&auto=format&fit=crop&q=80') center/cover no-repeat;
-            padding: 120px 20px 90px; 
+            padding: 140px 20px 100px; 
             text-align: center; 
             border-bottom: 1px solid var(--accent);
             position: relative;
             z-index: 1;
         }
         h1 { 
-            font-size: 3.6rem; 
+            font-size: 3.8rem; 
             margin: 0; 
             color: var(--accent); 
-            letter-spacing: 6px;
+            letter-spacing: 8px;
             text-transform: uppercase;
             font-weight: 400;
         }
         .tagline { 
-            font-size: 1.3rem; 
-            margin: 18px 0 0; 
-            opacity: 0.9; 
-            letter-spacing: 3px;
+            font-size: 1.5rem; 
+            margin: 20px 0 10px; 
+            opacity: 0.95; 
+            letter-spacing: 4px;
+        }
+        .coming-soon { 
+            font-size: 1.1rem; 
+            margin-top: 15px; 
+            opacity: 0.85; 
+            letter-spacing: 2px;
         }
         section { 
-            max-width: 920px; 
+            max-width: 800px; 
             margin: 0 auto; 
-            padding: 70px 20px; 
+            padding: 80px 20px; 
             position: relative;
             z-index: 1;
-        }
-        h2 { 
-            color: var(--accent); 
-            border-bottom: 1px dashed var(--accent); 
-            padding-bottom: 14px; 
-            margin-bottom: 35px;
-            letter-spacing: 2px;
-            font-size: 1.65rem;
-        }
-        h3 { 
-            color: #00ff9f; 
-            margin-top: 35px; 
-            font-size: 1.25rem;
-        }
-        p { font-size: 1.08rem; }
-        ul { 
-            list-style: none; 
-            padding: 0; 
-        }
-        li { 
-            margin: 14px 0; 
-            padding-left: 22px; 
-            position: relative;
-            font-size: 1.08rem;
-        }
-        li:before {
-            content: ">";
-            position: absolute;
-            left: 0;
-            color: var(--accent);
+            text-align: center;
         }
         .contact-btn {
             display: inline-flex;
@@ -98,7 +75,7 @@
             font-weight: 600;
             font-size: 1.1rem;
             transition: all 0.3s;
-            margin-top: 15px;
+            margin-top: 20px;
         }
         .contact-btn:hover {
             background: var(--accent);
@@ -123,70 +100,23 @@
     <header>
         <h1>TRUJARA</h1>
         <p class="tagline">PROFESSIONAL DECENTRALIZED INFRASTRUCTURE</p>
+        <p class="coming-soon">COMING SOON</p>
     </header>
 
-    <!-- ABOUT -->
+    <!-- SHORT INTRO -->
     <section>
-        <h2>ABOUT TRUJARA</h2>
-        <p>Trujara is a professional AI Service Provider (AISP) focused on building and operating high-performance, always-on GPU infrastructure for decentralized compute networks.</p>
-        <p>We specialize in reliable node operation and managed infrastructure services across established decentralized GPU networks. Our goal is to deliver consistent uptime and performance for both our own operations and clients who require dependable compute capacity.</p>
+        <p style="font-size: 1.15rem; max-width: 650px; margin: 0 auto;">
+            We are building high-performance GPU infrastructure for decentralized compute networks.<br>
+            Professional. Reliable. Future-ready.
+        </p>
     </section>
 
-    <!-- SERVICES -->
-    <section>
-        <h2>OUR SERVICES</h2>
-        <ul>
-            <li>High-performance GPU node operation on leading decentralized networks</li>
-            <li>Managed node services for operators and investors seeking hands-off reliable infrastructure</li>
-            <li>24/7 monitoring, maintenance, and performance optimization</li>
-            <li>Future: Dedicated inference capacity and API access for AI workloads</li>
-        </ul>
-    </section>
-
-    <!-- INFRASTRUCTURE & RELIABILITY -->
-    <section>
-        <h2>INFRASTRUCTURE & RELIABILITY</h2>
-        <p>Trujara operates enterprise-grade GPU systems designed for demanding 24/7 decentralized compute workloads.</p>
-
-        <h3>Hardware</h3>
-        <ul>
-            <li>High-VRAM NVIDIA GPUs (RTX 5090 / 4090 class) with enterprise liquid cooling</li>
-            <li>High-core-count CPUs and ample system memory</li>
-            <li>Redundant power delivery with UPS backup</li>
-        </ul>
-
-        <h3>Internet Connectivity & Redundancy</h3>
-        <p>Reliable connectivity is critical for node uptime and earning potential. Trujara has built multiple layers of protection:</p>
-        <ul>
-            <li><strong>Primary Connection:</strong> High-speed fiber optic link (300 Mbps+ symmetric) with low latency</li>
-            <li><strong>Secondary Backup:</strong> Independent secondary ISP connection from a different provider with automatic failover</li>
-            <li><strong>Tertiary Redundancy:</strong> 4G/5G cellular backup as final safety net</li>
-            <li><strong>Monitoring:</strong> Continuous monitoring with automated alerts and seamless failover</li>
-        </ul>
-
-        <h3>Power Protection & Solar Backup</h3>
-        <p>Trujara uses a hybrid power architecture with the grid as the primary source. In case of power outages, the system automatically switches to battery backup within milliseconds. During daytime, solar panels power the rig directly and charge the batteries. If battery levels drop while the grid is still down, the system intelligently continues running on available solar power. This ensures maximum uptime with reduced electricity costs and protection against both short and extended outages.</p>
-    </section>
-
-    <!-- WHY TRUJARA -->
-    <section>
-        <h2>WHY TRUJARA</h2>
-        <ul>
-            <li>Professional company structure focused on reliability and long-term operations</li>
-            <li>Premium hardware with proper liquid cooling for 24/7 operation</li>
-            <li>Multi-network diversification across established decentralized compute protocols</li>
-            <li>Focus on real utilization, uptime, and long-term operator economics</li>
-            <li>Transparent and professional approach to infrastructure services</li>
-        </ul>
-    </section>
-
-    <!-- CONTACT -->
-    <section style="text-align:center; padding-top: 60px; padding-bottom: 40px;">
+    <!-- GET IN TOUCH -->
+    <section style="padding-top: 40px; padding-bottom: 60px;">
         <h2>GET IN TOUCH</h2>
         
         <p style="max-width: 620px; margin: 0 auto 30px; font-size: 1.1rem;">
-            We operate professional-grade GPU infrastructure for decentralized compute networks. 
-            Whether you are looking for <strong>managed node services</strong>, <strong>dedicated capacity</strong>, 
+            Whether you are looking for managed node services, dedicated capacity, 
             or partnership opportunities, feel free to reach out.
         </p>
         
