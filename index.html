@@ -1,0 +1,970 @@
+<!doctype html>
+<!-- trujara-fs build: v21 — 2026-09-25 — MOCKUP, NOT PUBLISHED — synced with trujara-gui build v10
+     Changelog v20 -> v21:
+       - POWER legend moved to sit directly under the POWER section (between
+         ACTIVE LAYER and the NETWORK heading) instead of being appended after
+         the whole panel — was reading as unrelated to either section
+       - POWER legend wording reverted from real hardware names
+         (Grid/Solar/Solar Battery/Battery/UPS) back to the same ambiguous
+         Primary/Secondary/Tertiary/Not connected wording as the network
+         legend — matches power.txt's own deliberately ambiguous phrasing
+     Changelog v19 -> v20: added the (since-reworded) placeholder power
+       legend; dropped "— ILL" from Primary.
+     Changelog v19:
+       - network legend: dropped "— ILL" suffix, now just "Primary"
+       - added a placeholder POWER legend (Grid/Solar/Solar Battery/Battery/UPS,
+         static, non-pulsing) — no live data drives it yet (inverter WiFi
+         telemetry isn't wired in), shown ahead of the data per request. Note:
+         this names the real hardware layers, reversing an earlier request to
+         keep power.txt's prose deliberately ambiguous — power.txt itself is
+         UNCHANGED this round, only this new placeholder legend names them
+     Changelog v18 -> v19: legend dots no longer pulse (static reference key
+       now); removed the word "Legend:".
+     Changelog v18:
+       - legend dots for ACTIVE LAYER/LINK no longer pulse — they're a static
+         reference key now (new .legend-swatch class, no animation); only the
+         real live indicator dot pulses/glows, so the eye is drawn to what's
+         actually current, not to the key explaining it
+       - removed the word "Legend:" — the dot+label pairing is self-explanatory
+     Prior changelog (v17 -> v18): dot-only pulse redesign (no pill/box),
+       green/purple/amber/red recoloring, CSP added.
+     Changelog v17:
+       - status tags (OPERATIONAL, COMING SOON, IN USE, ACTIVE LAYER/LINK, etc.)
+         redesigned: dot-only pulse, no pill/box background — was pulsing the
+         whole box via box-shadow, now only the small dot pulses (slower,
+         brighter glow), applied uniformly to all four colors, not just green
+       - ACTIVE LAYER/LINK recolored to the requested scheme: green=Primary
+         (ILL), purple=Secondary, amber=Tertiary, red=not connected/not yet
+         reporting; legend updated to match
+       - added a Content-Security-Policy meta tag (see comment above it for
+         the reasoning on script-src 'unsafe-inline' vs. what's actually
+         locking things down: connect-src restricted to this site's own
+         status Worker domain, object-src/base-uri/form-action closed)
+     Prior changelog (v16 -> v17): fixed a malformed HTML comment from a
+     prior edit; "IN USE" converted to a proper statusTag pill.
+     Changelog v16:
+       - fixed: a prior edit left a malformed HTML comment (text sitting
+         outside the comment, which would have rendered as visible garbage
+         at the top of the page) — cleaned up, verified no stray content
+         remains outside any comment block
+       - all OPERATIONAL-style green indicators now pulse consistently:
+         "IN USE" is now a proper statusTag pill (reuses the same pulsing
+         .tag-ok style as everything else) instead of plain static text
+       - status/live.json now shows a color-key legend for ACTIVE LAYER /
+         ACTIVE LINK (Primary/Secondary/Tertiary/Not yet reporting)
+       - active_power_layer/active_network_link now come from the status
+         Worker's new POST /infra path (separate, separately-authenticated
+         write source — see the Worker's v5 changelog), merged server-side
+         into GET /'s response; no other client-side change was needed
+     Changelog v14 -> v16: real logo/favicon embedded, ACTIVE LAYER/LINK
+     indicators added, power/network copy reworded, header cleanup, Sync
+     telemetry rename + fix, reserved telemetry-source note added. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- CSP note: this is a static single-file page with no build/templating
+     step, so a hash- or nonce-based script-src isn't realistically
+     maintainable here (it would silently break on the next inline-script
+     edit unless someone remembers to regenerate the hash). script-src
+     therefore allows 'unsafe-inline'; the actual XSS defense is that this
+     codebase never uses innerHTML/outerHTML/eval/Function()/document.write
+     anywhere — every value from the status Worker is written via
+     textContent, never parsed as markup. What this policy DOES meaningfully
+     lock down: connect-src restricts network calls to exactly this site's
+     own status Worker (nothing else this page could ever be tricked into
+     exfiltrating to), and object-src/base-uri/form-action are fully closed
+     since none of them are used by this page at all. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://trujara-status.genplay110.workers.dev; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none';">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%20width%3D%2264%22%20height%3D%2264%22%3E%0A%3Cg%3E%0A%20%20%3Cline%20x1%3D%2216%22%20y1%3D%2216%22%20x2%3D%2248%22%20y2%3D%2216%22%20stroke%3D%22%232A9C6C%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.6%22/%3E%0A%20%20%3Cline%20x1%3D%2216%22%20y1%3D%2216%22%20x2%3D%2216%22%20y2%3D%2248%22%20stroke%3D%22%232A9C6C%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.6%22/%3E%0A%20%20%3Cline%20x1%3D%2248%22%20y1%3D%2216%22%20x2%3D%2248%22%20y2%3D%2248%22%20stroke%3D%22%232A9C6C%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.6%22/%3E%0A%20%20%3Cline%20x1%3D%2216%22%20y1%3D%2248%22%20x2%3D%2248%22%20y2%3D%2248%22%20stroke%3D%22%232A9C6C%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.6%22/%3E%0A%20%20%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%228%22%20fill%3D%22%233DDC97%22/%3E%0A%20%20%3Ccircle%20cx%3D%2248%22%20cy%3D%2216%22%20r%3D%226.4%22%20fill%3D%22%23B4A3FF%22/%3E%0A%20%20%3Ccircle%20cx%3D%2216%22%20cy%3D%2248%22%20r%3D%226.4%22%20fill%3D%22%23B4A3FF%22/%3E%0A%20%20%3Ccircle%20cx%3D%2248%22%20cy%3D%2248%22%20r%3D%228%22%20fill%3D%22%233DDC97%22/%3E%0A%3C/g%3E%0A%3C/svg%3E">
+<title>trujara-node01:/</title>
+<meta name="description" content="Trujara's compute node, laid out as files. Compute you can verify, not just trust.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#18191b; --panel:#1f2123; --line:#333537; --text:#eceeef; --muted:#8b8f92;
+  --green:#3ddc97; --violet:#b4a3ff; --bad:#ff7a70; --amber:#e7b84c;
+  --fs-xs:11px; --fs-sm:12.5px; --fs-base:13.5px; --fs-md:14px; --fs-xl:clamp(19px,4.6vw,27px);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font:var(--fs-base)/1.6 "IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  -webkit-text-size-adjust:100%;
+}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--green);outline-offset:2px;border-radius:3px}
+#meshCanvas{position:fixed;inset:0;width:100%;height:100%;opacity:.32;z-index:0;pointer-events:none}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 18%, rgba(0,0,0,0) 30%, var(--bg) 90%)}
+.wrap{position:relative;z-index:2;max-width:860px;margin:0 auto;padding:20px 16px 32px}
+
+header{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+header svg{width:26px;height:26px;flex:none}
+.host{font-weight:500;letter-spacing:.01em}
+.host a{text-decoration:none}
+.fs-brand-logo{height:26px;width:auto;display:block;}
+.view-toggle{margin-left:auto;font-size:var(--fs-sm);color:var(--muted);text-decoration:none;
+  border:1px solid var(--line);border-radius:5px;padding:6px 11px;white-space:nowrap}
+.view-toggle:hover{border-color:var(--green);color:var(--text)}
+
+.crumbs{font-size:var(--fs-xl);font-weight:500;line-height:1.3;margin:0 0 18px;word-break:break-all}
+.crumbs a{text-decoration:none;color:var(--violet)}
+.crumbs a:hover{text-decoration:underline}
+.crumbs .sep{color:var(--muted);margin:0 .12em}
+.crumbs .leaf{color:var(--text)}
+
+.list{border-top:1px solid var(--line);margin-bottom:26px}
+.row{display:grid;grid-template-columns:1.6ch 1fr auto;gap:12px;align-items:baseline;
+  padding:11px 6px;border-bottom:1px solid var(--line);text-decoration:none}
+.row:hover{background:var(--panel)}
+.t{color:var(--muted)}
+.t.d{color:var(--violet)} .t.l{color:var(--green)}
+.nm{overflow-wrap:anywhere}
+.nm.d{color:var(--violet);font-weight:500}
+.nm .to{color:var(--muted)}
+.meta{color:var(--muted);font-size:var(--fs-sm);white-space:nowrap;text-align:right}
+.meta .tm{margin-left:10px}
+@media (max-width:520px){.meta .tm{display:none}}
+
+.fhead{display:flex;flex-wrap:wrap;gap:4px 18px;color:var(--muted);font-size:var(--fs-sm);margin-bottom:10px}
+.fhead b{font-weight:500;color:var(--text)}
+.hash{background:none;border:0;padding:0;font:inherit;color:var(--green);cursor:pointer;text-align:left;overflow-wrap:anywhere}
+pre.body{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:6px;
+  padding:14px 16px;overflow-x:auto;white-space:pre;font:inherit;font-size:var(--fs-base);line-height:1.65}
+.sub{margin:30px 0 10px;font-size:var(--fs-md);font-weight:500}
+.stat-out{border:1px solid var(--line);border-radius:6px;background:var(--panel);padding:2px 16px}
+.stat-section{padding:14px 0 2px;font-size:var(--fs-xs);color:var(--violet);letter-spacing:.04em}
+.stat-section:first-child{padding-top:2px}
+.statrow{display:flex;align-items:baseline;gap:14px;padding:7px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.statrow:last-child{border-bottom:0}
+.statrow .k{color:var(--muted);width:15ch;flex:none}
+.statrow .v{font-weight:500}
+.statrow .src{margin-left:auto;color:var(--muted);font-size:var(--fs-xs)}
+.state-online{color:var(--green)} .state-stale{color:var(--amber)}
+.state-pre{color:var(--muted)} .state-offline{color:var(--bad)}
+.tag{display:inline-flex;align-items:center;gap:8px;font-size:var(--fs-xs);
+  font-weight:600;letter-spacing:.06em;text-transform:uppercase;line-height:1;white-space:nowrap;color:var(--text)}
+.tag-dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none;
+  animation:dotpulse 2.6s ease-in-out infinite}
+.tag-ok .tag-dot{background:var(--green);box-shadow:0 0 8px 1px var(--green)}
+.tag-warn .tag-dot{background:var(--amber);box-shadow:0 0 8px 1px var(--amber)}
+.tag-bad .tag-dot{background:var(--bad);box-shadow:0 0 8px 1px var(--bad)}
+.tag-pending .tag-dot{background:var(--violet);box-shadow:0 0 8px 1px var(--violet)}
+@keyframes dotpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.35)}}
+.legend-swatch{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}
+.tag-row{margin:2px 0 16px}
+.rawbox{margin-top:14px}
+.rawbox summary{cursor:pointer;color:var(--muted);font-size:var(--fs-sm);padding:2px 0}
+.rawbox[open] summary{margin-bottom:8px}
+.note{color:var(--muted);font-size:var(--fs-sm);margin:12px 0 0;max-width:62ch}
+.btn{font:inherit;font-size:var(--fs-sm);color:var(--text);background:var(--panel);border:1px solid var(--line);
+  border-radius:5px;padding:7px 12px;cursor:pointer}
+.btn:hover{border-color:var(--green)}
+.btn.go{color:var(--bg);background:var(--green);border-color:var(--green);font-weight:500}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.linkcard{padding:14px 0 6px}
+.linkcard a{color:var(--green)}
+
+.term{margin-top:34px;border:1px solid var(--line);border-radius:6px;background:var(--panel)}
+.out{max-height:38vh;overflow:auto;padding:12px 14px 4px;font-size:var(--fs-sm);white-space:pre-wrap;overflow-wrap:anywhere}
+.line{min-height:1.6em}
+.line.echo{color:var(--muted)}
+.line.ok{color:var(--green)} .line.bad{color:var(--bad)} .line.dir{color:var(--violet)}
+.prompt{display:flex;align-items:center;gap:8px;padding:8px 14px 12px;border-top:1px solid var(--line)}
+.ps{color:var(--green);white-space:nowrap;font-size:var(--fs-sm)}
+.prompt input{flex:1;min-width:0;background:none;border:0;color:var(--text);font:inherit;font-size:16px;padding:4px 0;outline:none} /* 16px is deliberate, not part of the scale: iOS Safari auto-zooms on any input under 16px */
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:0 14px 12px}
+.chips .btn{padding:5px 10px}
+footer{margin-top:26px;color:var(--muted);font-size:var(--fs-sm)}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<canvas id="meshCanvas" aria-hidden="true"></canvas>
+<div class="vignette"></div>
+<div class="wrap">
+  <header>
+    <!-- Company name only — node identity now lives on status/live.json, not the header. -->
+    <a href="#/" class="host" aria-label="Trujara — home"><svg class="brand-logo fs-brand-logo" role="img" aria-label="Trujara" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 64" width="260" height="64">
+  <g>
+<g>
+  <line x1="16" y1="16" x2="48" y2="16" stroke="#2A9C6C" stroke-width="2.4" stroke-linecap="round" opacity="0.6"/>
+  <line x1="16" y1="16" x2="16" y2="48" stroke="#2A9C6C" stroke-width="2.4" stroke-linecap="round" opacity="0.6"/>
+  <line x1="48" y1="16" x2="48" y2="48" stroke="#2A9C6C" stroke-width="2.4" stroke-linecap="round" opacity="0.6"/>
+  <line x1="16" y1="48" x2="48" y2="48" stroke="#2A9C6C" stroke-width="2.4" stroke-linecap="round" opacity="0.6"/>
+  <circle cx="16" cy="16" r="8" fill="#3DDC97"/>
+  <circle cx="48" cy="16" r="6.4" fill="#B4A3FF"/>
+  <circle cx="16" cy="48" r="6.4" fill="#B4A3FF"/>
+  <circle cx="48" cy="48" r="8" fill="#3DDC97"/>
+</g>
+  </g>
+  <g transform="translate(82,44) scale(0.0224609375,-0.0224609375)">
+      <g transform="translate(0.0,0)"><path d="M773 1181V0H478V1181H23V1409H1229V1181Z" fill="#3DDC97"/></g>
+      <g transform="translate(1241.0,0)"><path d="M143 0V828Q143 917 140.5 976.5Q138 1036 135 1082H403Q406 1064 411.0 972.5Q416 881 416 851H420Q461 965 493.0 1011.5Q525 1058 569.0 1080.5Q613 1103 679 1103Q733 1103 766 1088V853Q698 868 646 868Q541 868 482.5 783.0Q424 698 424 531V0Z" fill="#3DDC97"/></g>
+      <g transform="translate(2028.0,0)"><path d="M408 1082V475Q408 190 600 190Q702 190 764.5 277.5Q827 365 827 502V1082H1108V242Q1108 104 1116 0H848Q836 144 836 215H831Q775 92 688.5 36.0Q602 -20 483 -20Q311 -20 219.0 85.5Q127 191 127 395V1082Z" fill="#3DDC97"/></g>
+      <g transform="translate(3269.0,0)"><path d="M144 1277V1484H425V1277ZM138 -425Q38 -425 -32 -416V-218L19 -222Q91 -222 117.5 -190.5Q144 -159 144 -60V1082H425V-128Q425 -271 352.5 -348.0Q280 -425 138 -425Z" fill="#3DDC97"/></g>
+      <g transform="translate(3828.0,0)"><path d="M393 -20Q236 -20 148.0 65.5Q60 151 60 306Q60 474 169.5 562.0Q279 650 487 652L720 656V711Q720 817 683.0 868.5Q646 920 562 920Q484 920 447.5 884.5Q411 849 402 767L109 781Q136 939 253.5 1020.5Q371 1102 574 1102Q779 1102 890.0 1001.0Q1001 900 1001 714V320Q1001 229 1021.5 194.5Q1042 160 1090 160Q1122 160 1152 166V14Q1127 8 1107.0 3.0Q1087 -2 1067.0 -5.0Q1047 -8 1024.5 -10.0Q1002 -12 972 -12Q866 -12 815.5 40.0Q765 92 755 193H749Q631 -20 393 -20ZM720 501 576 499Q478 495 437.0 477.5Q396 460 374.5 424.0Q353 388 353 328Q353 251 388.5 213.5Q424 176 483 176Q549 176 603.5 212.0Q658 248 689.0 311.5Q720 375 720 446Z" fill="#3DDC97"/></g>
+      <g transform="translate(4957.0,0)"><path d="M143 0V828Q143 917 140.5 976.5Q138 1036 135 1082H403Q406 1064 411.0 972.5Q416 881 416 851H420Q461 965 493.0 1011.5Q525 1058 569.0 1080.5Q613 1103 679 1103Q733 1103 766 1088V853Q698 868 646 868Q541 868 482.5 783.0Q424 698 424 531V0Z" fill="#3DDC97"/></g>
+      <g transform="translate(5744.0,0)"><path d="M393 -20Q236 -20 148.0 65.5Q60 151 60 306Q60 474 169.5 562.0Q279 650 487 652L720 656V711Q720 817 683.0 868.5Q646 920 562 920Q484 920 447.5 884.5Q411 849 402 767L109 781Q136 939 253.5 1020.5Q371 1102 574 1102Q779 1102 890.0 1001.0Q1001 900 1001 714V320Q1001 229 1021.5 194.5Q1042 160 1090 160Q1122 160 1152 166V14Q1127 8 1107.0 3.0Q1087 -2 1067.0 -5.0Q1047 -8 1024.5 -10.0Q1002 -12 972 -12Q866 -12 815.5 40.0Q765 92 755 193H749Q631 -20 393 -20ZM720 501 576 499Q478 495 437.0 477.5Q396 460 374.5 424.0Q353 388 353 328Q353 251 388.5 213.5Q424 176 483 176Q549 176 603.5 212.0Q658 248 689.0 311.5Q720 375 720 446Z" fill="#3DDC97"/></g>
+  </g>
+</svg></a>
+  </header>
+
+  <h1 class="crumbs" id="crumbs"></h1>
+  <main id="view" aria-live="polite"></main>
+
+  <section class="term" aria-label="Command prompt">
+    <div class="out" id="out" role="log"></div>
+    <div class="chips" id="chips"></div>
+    <label class="prompt">
+      <span class="ps" id="ps"></span>
+      <input id="cmd" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" aria-label="Command">
+    </label>
+  </section>
+
+  <footer>© 2026 Trujara</footer>
+</div>
+
+<script>
+/* Public, read-only status relay (Cloudflare Worker + KV). The rig is
+   the only thing that can write to it, gated by a secret Bearer key
+   that never appears here; this page only ever performs the public GET. */
+const STATUS_ENDPOINT = 'https://trujara-status.genplay110.workers.dev';
+
+/* Same destination as the "Contact us" button on the main site. */
+const CONTACT_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSexe1Gn7YYbEql_nK_OYASJa4neUQbedY8lhuJDUHdiAGA_OQ/viewform?usp=dialog';
+
+const FILES = [
+{path:'readme.txt', mtime:'2026-09-22T10:02', body:
+`trujara-node01
+
+Compute you can verify, not just trust.
+
+This site is laid out as a real filesystem,
+not a summary of one. Each file is the
+actual content, not a description of it.
+
+Every file has a SHA-256 hash, and
+manifest.sha256 lists them all. Type
+"verify" in the prompt below to recompute
+each hash in your browser and check it
+against the manifest yourself. Type "help"
+for every other command.
+
+Start here
+  compute.txt       what does the work
+  power.txt         how it stays powered
+  network.txt       how it stays reachable
+  monitoring.txt    how it's watched
+  status/live.json  what it's doing now
+  company/          who's behind this
+  latest            where the build is today
+`},
+{path:'compute.txt', mtime:'2026-09-22T09:40', body:
+`hardware  best-in-class GPU hardware
+build     single high-performance node
+
+One node, engineered the same way we'd
+engineer our tenth: full-capability hardware
+handling AI inference jobs and compute
+workloads across multiple decentralized
+networks, not a scaled-down starting point.
+`, badge:{label:'OPERATIONAL', kind:'ok'}},
+{path:'power.txt', mtime:'2026-09-25T09:44', body:
+`layer 1   primary utility power
+layer 2   independent backup power
+layer 3   reserve energy capacity
+layer 4   hardware-level failover
+
+Each layer covers the one in front of it.
+If the primary source drops, backup power
+takes the load automatically, drawing on
+reserve capacity behind it. A hardware-level
+failover bridges the instant of that handover
+directly at the node, so no gap in the chain
+ever reaches the GPU.
+
+See status/live.json for which layer is
+active right now.
+`, badge:{label:'OPERATIONAL', kind:'ok'}},
+{path:'network.txt', mtime:'2026-09-25T09:48', body:
+`link 1    primary connection
+link 2    secondary connection
+link 3    tertiary connection
+
+Each link covers the one before it. If the
+primary connection drops, the secondary
+takes over automatically; if that fails
+too, the tertiary link keeps the node
+reachable. No single connection going
+down takes the node offline.
+
+See status/live.json for which link is
+active right now.
+`, badge:{label:'OPERATIONAL', kind:'ok'}},
+{path:'monitoring.txt', mtime:'2026-09-22T09:50', body:
+`telemetry temperature
+          uptime
+          network health
+
+Watched around the clock, so issues are
+caught before they cost compute time.
+`, badge:{label:'OPERATIONAL', kind:'ok'}},
+{path:'status/live.json', dynamic:true, mtime:'2026-09-22T10:00', body:''},
+{path:'roadmap/now.txt', mtime:'2026-09-22T09:55', body:
+`phase     single-node deployment
+status    flagship-class GPU, with redundant
+          power, connectivity, and monitoring
+          all in place
+`},
+{path:'roadmap/next.txt', mtime:'2026-09-22T09:56', body:
+`phase     capacity expansion
+plan      additional GPU capacity added
+          within the same redundant power
+          and network architecture
+`},
+{path:'roadmap/later.txt', mtime:'2026-09-22T09:57', body:
+`phase     multi-node operation
+plan      independent nodes scaled in
+          parallel, each held to the same
+          reliability standard as the first
+`},
+{path:'roadmap/soon.txt', mtime:'2026-09-22T09:58', body:
+`offer     direct developer rental
+what      reserved, dedicated GPU access
+          for developers running AI
+          inference jobs and training
+          workloads, outside the
+          marketplace queue, fixed
+          pricing, invoiced directly
+launch    as we add capacity
+`, badge:{label:'COMING SOON', kind:'pending'}},
+{path:'company/trujara.txt', mtime:'2026-09-22T09:30', body:
+`name      Trujara
+type      independent AI Service Provider
+focus     GPU node infrastructure for
+          decentralized compute and AI
+          inference networks
+
+Where much of this industry competes on
+raw GPU count, we're starting from the
+opposite end: proving that one node can be
+built and operated properly before
+claiming any more than that.
+
+Power, network, and monitoring aren't
+roadmap items here, they're live and
+operating today, held to the same
+standard we'll carry as we scale. This
+isn't a promise. It's what's running
+right now.
+`},
+{path:'company/contact.txt', mtime:'2026-09-22T09:31', body:
+`Evaluating compute for a project, or have
+a question about how we operate? Leave
+your email and we'll follow up directly.
+`},
+{path:'latest', link:'roadmap/now.txt', mtime:'2026-09-22T09:59'},
+{path:'manifest.sha256', generated:true, mtime:'2026-09-22T10:05', body:''},
+];
+
+/* Worker GET returns { latest: {...} } — the rig POSTs readings in,
+   gated by a secret Bearer token on the write side; this page only
+   ever does the public, unauthenticated GET, and treats whatever
+   comes back as untrusted input (validated and clamped below, never
+   passed to innerHTML). */
+const PLACEHOLDER_LIVE = {
+  uplink_latency_ms: null,
+  gpu_util_pct: null, gpu_in_use: null, gpu_temp_c: null,
+  vram_used_gb: null, vram_total_gb: null, power_draw_w: null,
+  cpu_util_pct: null, cpu_temp_c: null, ram_used_gb: null, ram_total_gb: null,
+  room_temp_c: null, updated: null,
+  active_power_layer: null, active_network_link: null,
+};
+const POLL_MS = 30000;          // matches the rig's own status-relay cadence
+const STALE_AFTER_S = 360;      // 6 min — well past the rig's ~2 min push interval
+const FETCH_TIMEOUT_MS = 8000;  // abort a hung request rather than let it queue up
+
+/* ---------- filesystem ---------- */
+const nodes = new Map();
+const parentOf = p => { const i = p.lastIndexOf('/'); return i < 0 ? '' : p.slice(0, i); };
+function ensureDir(p){
+  if (nodes.has(p)) return nodes.get(p);
+  const d = {type:'dir', path:p, name:p.split('/').pop() || '/', children:[]};
+  nodes.set(p, d);
+  if (p !== '') ensureDir(parentOf(p)).children.push(d);
+  return d;
+}
+ensureDir('');
+for (const f of FILES){
+  const n = {...f, type: f.link ? 'link' : 'file', name: f.path.split('/').pop()};
+  nodes.set(f.path, n);
+  ensureDir(parentOf(f.path)).children.push(n);
+}
+for (const d of nodes.values()) if (d.type === 'dir'){
+  d.children.sort((a,b) => (a.type==='dir'?0:1)-(b.type==='dir'?0:1) || a.name.localeCompare(b.name));
+}
+function dirMtime(d){
+  return d.children.map(c => c.type==='dir' ? dirMtime(c) : c.mtime).filter(Boolean).sort().pop() || '';
+}
+const deref = n => (n && n.type === 'link') ? nodes.get(n.link) : n;
+function resolve(input, cwd){
+  if (!input) return cwd;
+  const abs = input.startsWith('/') || input.startsWith('~');
+  const parts = abs ? [] : (cwd ? cwd.split('/') : []);
+  for (const seg of input.replace(/^~/, '').split('/')){
+    if (!seg || seg === '.') continue;
+    if (seg === '..') parts.pop(); else parts.push(seg);
+  }
+  return parts.join('/');
+}
+
+/* ---------- hashing ---------- */
+const enc = new TextEncoder();
+async function sha256(s){
+  try{
+    const b = await crypto.subtle.digest('SHA-256', enc.encode(s));
+    return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2,'0')).join('');
+  }catch(e){ return null; }
+}
+async function seal(n){ n.size = enc.encode(n.body).length; n.hash = await sha256(n.body); }
+const hashed = () => [...nodes.values()].filter(n => n.type==='file' && !n.dynamic && !n.generated)
+  .sort((a,b) => a.path.localeCompare(b.path));
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+function el(tag, attrs, ...kids){
+  const e = document.createElement(tag);
+  for (const k in (attrs||{})){
+    if (k === 'text') e.textContent = attrs[k];
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), attrs[k]);
+    else e.setAttribute(k, attrs[k]);
+  }
+  for (const c of kids) if (c != null) e.append(c);
+  return e;
+}
+function fmt(iso){
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  const pad = x => String(x).padStart(2, '0');
+  // getFullYear/getMonth/getDate/getHours/getMinutes are local-timezone-aware
+  // by spec — this is what actually converts a stored UTC instant into
+  // whichever timezone the visitor's own browser is in.
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+const bytes = n => n == null ? '' : n + ' B';
+const href = p => '#/' + p;
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const wait = ms => new Promise(r => setTimeout(r, reduceMotion ? 0 : ms));
+
+/* ---------- views ---------- */
+let cwd = '';
+function renderCrumbs(p){
+  const c = $('#crumbs'); c.textContent = '';
+  const segs = p ? p.split('/') : [];
+  c.append(el('a', {href:'#/', text:'/'}));
+  segs.forEach((s, i) => {
+    const sub = segs.slice(0, i+1).join('/');
+    if (i) c.append(el('span', {class:'sep', text:'/'}));
+    c.append(i === segs.length-1 ? el('span', {class:'leaf', text:s}) : el('a', {href:href(sub), text:s}));
+  });
+}
+function row(n, label){
+  const t = n.type === 'dir' ? 'd' : n.type === 'link' ? 'l' : '-';
+  const name = el('span', {class:'nm ' + t});
+  name.append(label || (n.name + (n.type==='dir' ? '/' : '')));
+  if (n.type === 'link') name.append(el('span', {class:'to', text:'  \u2192 ' + n.link}));
+  const size = n.type==='dir' ? n.children.length + (n.children.length===1?' item':' items')
+             : n.type==='link' ? 'link' : bytes(n.size);
+  const meta = el('span', {class:'meta'}, size, el('span', {class:'tm', text: fmt(n.type==='dir' ? dirMtime(n) : n.mtime)}));
+  return el('a', {class:'row', href:href(n.path)}, el('span', {class:'t '+t, text:t}), name, meta);
+}
+function statusTag(label, kind){
+  // kind: 'ok' (pulsing green) | 'warn' (amber) | 'bad' (red) | 'pending' (violet)
+  return el('span', {class:'tag tag-' + kind}, el('span', {class:'tag-dot'}), label);
+}
+function activeLevelTag(level){
+  // Color scheme: green = primary link (ILL), purple = secondary, amber =
+  // tertiary, red = not connected. When the source hasn't started reporting
+  // yet — before the N150 script and/or inverter WiFi integration is wired
+  // in — that's shown the same way as "not connected": red, since a viewer
+  // has no way to tell "no data yet" from "actually down," and treating it
+  // as the more urgent state is the honest default.
+  if (level === 'primary') return statusTag('PRIMARY', 'ok');       // green
+  if (level === 'secondary') return statusTag('SECONDARY', 'pending'); // purple
+  if (level === 'tertiary') return statusTag('TERTIARY', 'warn');   // amber
+  return statusTag('NOT YET REPORTING', 'bad');                     // red
+}
+function staticLegend(items){
+  // Generic static (non-pulsing) color key. Legend swatches never pulse —
+  // only the real live indicator dot does — so the eye is drawn to what's
+  // actually current, not to the key explaining it.
+  const dot = kind => el('span', {class:'legend-swatch', style:'background:currentColor;color:var(--'+kind+');margin-right:5px;display:inline-block;'});
+  const item = (label, colorVar) => el('span', {style:'margin-right:16px;white-space:nowrap;display:inline-flex;align-items:center;'}, dot(colorVar), label);
+  return el('p', {class:'note'}, ...items.map(([label, colorVar]) => item(label, colorVar)));
+}
+function activeLevelLegend(){
+  return staticLegend([['Primary', 'green'], ['Secondary', 'violet'], ['Tertiary', 'amber'], ['Not connected', 'bad']]);
+}
+function powerLegend(){
+  // PLACEHOLDER: no live data drives this yet (inverter WiFi telemetry isn't
+  // wired in). Same ambiguous Primary/Secondary/Tertiary wording as the
+  // network legend, deliberately not naming the real hardware layers (grid/
+  // solar/battery/UPS) — matches power.txt's own ambiguous phrasing.
+  return staticLegend([['Primary', 'green'], ['Secondary', 'violet'], ['Tertiary', 'amber'], ['Not connected', 'bad']]);
+}
+function fileBlock(n){
+  const frag = document.createDocumentFragment();
+  const hashBtn = el('button', {class:'hash', title:'Copy full hash', text: n.hash ? n.hash.slice(0,16) + '\u2026' : 'unavailable',
+    onclick: async () => {
+      if (!n.hash) return;
+      hashBtn.textContent = n.hash;
+      try{ await navigator.clipboard.writeText(n.hash); }catch(e){}
+    }});
+  frag.append(el('div', {class:'fhead'},
+    el('span', {}, 'size ', el('b', {text: bytes(n.size)})),
+    el('span', {}, 'modified ', el('b', {text: fmt(n.mtime)})),
+    el('span', {}, 'sha256 ', hashBtn)));
+  if (n.badge) frag.append(el('div', {class:'tag-row'}, statusTag(n.badge.label, n.badge.kind)));
+  frag.append(el('pre', {class:'body', tabindex:'0', text:n.body}));
+  return frag;
+}
+function renderDir(n){
+  const v = $('#view'); v.textContent = '';
+  const list = el('nav', {class:'list', 'aria-label':'Directory listing'});
+  if (n.path !== '') list.append(row({...nodes.get(parentOf(n.path)), path:parentOf(n.path)}, '../'));
+  n.children.forEach(c => list.append(row(c)));
+  v.append(list);
+  const readme = n.children.find(c => c.name === 'readme.txt');
+  if (readme){
+    v.append(el('h2', {class:'sub', text:'readme.txt'}), fileBlock(readme));
+    v.append(el('div', {class:'actions'},
+      el('button', {class:'btn go', text:'Verify all files', onclick:() => run('verify')}),
+      el('button', {class:'btn', text:'Show tree', onclick:() => run('tree')})));
+  }
+}
+function agoText(iso){
+  if (!iso) return null;
+  const s = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 1000));
+  if (s < 60) return s + 's ago';
+  if (s < 3600) return Math.round(s / 60) + 'm ago';
+  return Math.round(s / 3600) + 'h ago';
+}
+function liveState(n){
+  if (!STATUS_ENDPOINT) return ['NOT CONNECTED', 'pending'];
+  if (n.err) return ['UNREACHABLE', 'bad'];
+  const upd = n.live && n.live.updated;
+  if (!upd) return ['NOT CONNECTED', 'pending'];
+  const age = (Date.now() - new Date(upd).getTime()) / 1000;
+  return age <= STALE_AFTER_S ? ['OPERATIONAL', 'ok'] : ['STALE', 'warn'];
+}
+function statRow(k, v, cls, src){
+  return el('div', {class:'statrow'},
+    el('span', {class:'k', text:k}),
+    el('span', {class:'v ' + (cls || ''), text:v}),
+    src ? el('span', {class:'src', text:src}) : null);
+}
+function statSection(label){ return el('div', {class:'stat-section', text:label}); }
+function stateRow(label, kind){
+  return el('div', {class:'statrow'},
+    el('span', {class:'k', text:'STATE'}),
+    el('span', {class:'v'}, statusTag(label, kind)));
+}
+const pctStr = v => v != null ? v + '%' : '\u2014';
+const tempStr = v => v != null ? v + ' \u00b0C' : '\u2014';
+const wattStr = v => v != null ? v + ' W' : '\u2014';
+const msStr = v => v != null ? Math.round(v) + ' ms' : '\u2014';
+const gbStr = (used, total) => (used != null && total != null) ? used + ' / ' + total + ' GB' : '\u2014';
+function liveStatsBlock(n){
+  const [label, kind] = liveState(n);
+  const live = n.live || {};
+  const updatedIso = n.lastSuccessAt ? new Date(n.lastSuccessAt).toISOString() : null;
+  const updated = updatedIso ? fmt(updatedIso) + (agoText(updatedIso) ? '  \u00b7  ' + agoText(updatedIso) : '') : '\u2014';
+  const box = el('div', {class:'stat-out'},
+    statRow('NODE', 'node01'),
+    stateRow(label, kind),
+    el('div', {class:'statrow'},
+      el('span', {class:'k', text:'UPDATED'}),
+      el('span', {class:'v', id:'updated-value', 'aria-live':'off', text:updated})),
+    statSection('GPU'),
+    statRow('UTILIZATION', pctStr(live.gpu_util_pct)),
+    el('div', {class:'statrow'}, el('span', {class:'k', text:'IN USE'}), el('span', {class:'v'},
+      live.gpu_in_use == null ? statusTag('UNKNOWN', 'pending') : (live.gpu_in_use ? statusTag('IN USE', 'ok') : statusTag('IDLE', 'pending')))),
+    statRow('TEMPERATURE', tempStr(live.gpu_temp_c)),
+    statRow('VRAM', gbStr(live.vram_used_gb, live.vram_total_gb)),
+    statRow('POWER DRAW', wattStr(live.power_draw_w)),
+    statSection('SYSTEM'),
+    statRow('CPU UTILIZATION', pctStr(live.cpu_util_pct)),
+    statRow('CPU TEMPERATURE', tempStr(live.cpu_temp_c)),
+    statRow('RAM', gbStr(live.ram_used_gb, live.ram_total_gb)),
+    statSection('ENVIRONMENT'),
+    statRow('AMBIENT TEMPERATURE', tempStr(live.room_temp_c)),
+    statSection('POWER'),
+    el('div', {class:'statrow'}, el('span', {class:'k', text:'ACTIVE LAYER'}), el('span', {class:'v'}, activeLevelTag(live.active_power_layer))),
+    powerLegend(),
+    statSection('NETWORK'),
+    el('div', {class:'statrow'}, el('span', {class:'k', text:'ACTIVE LINK'}), el('span', {class:'v'}, activeLevelTag(live.active_network_link))),
+    statRow('UPLINK LATENCY', msStr(live.uplink_latency_ms)),
+    activeLevelLegend());
+  const frag = document.createDocumentFragment();
+  frag.append(box);
+  const details = el('details', {class:'rawbox'}, el('summary', {text:'raw (validated fields only)'}), el('pre', {class:'body', text:n.body}));
+  frag.append(details);
+  return frag;
+}
+const SYNC_COOLDOWN_MS = 5000; // floor between manual syncs, independent of fetch speed
+async function manualSync(n){
+  if (n.fetching || Date.now() < (n.nextSyncAllowedAt || 0)) return;
+  n.nextSyncAllowedAt = Date.now() + SYNC_COOLDOWN_MS;
+  await refreshLive(n);   // re-renders this file once the attempt completes
+  setTimeout(() => {      // one more render so the button re-enables
+    if (currentPath() === n.path && $('#view')) renderFile(n);
+  }, SYNC_COOLDOWN_MS);
+}
+function renderFile(n){
+  const v = $('#view'); v.textContent = '';
+  if (n.dynamic){
+    v.append(liveStatsBlock(n));
+    if (STATUS_ENDPOINT){
+      const onCooldown = n.fetching || Date.now() < (n.nextSyncAllowedAt || 0);
+      /* Renamed from "Sync now" to "Sync telemetry" — three places touched
+         so the label stays consistent everywhere it's exposed:
+           1) this button's visible text/"Syncing…" in-progress text
+           2) its accessible name (title, for screen readers + tooltips)
+           3) the descriptive note below, which used to reference it by the old name */
+      const syncBtn = el('button', {class:'btn go', title:'Sync telemetry', text: n.fetching ? 'Syncing\u2026' : 'Sync telemetry', onclick: () => manualSync(n)});
+      if (onCooldown) syncBtn.disabled = true;
+      v.append(el('div', {class:'actions'}, syncBtn));
+    }
+    v.append(el('p', {class:'note', text: STATUS_ENDPOINT
+      ? 'Polls the status relay every 30s, or immediately with Sync telemetry. A reading older than 6 minutes is shown as stale rather than passed off as live. Excluded from the manifest since it changes as the node runs.'
+      : 'Placeholder until STATUS_ENDPOINT is set. Excluded from the manifest since it changes as the node runs.'}));
+    // Polling is started once, from show(), when this file is first opened —
+    // never from here. This function repaints after every fetch (including
+    // every auto-poll tick), so a startLivePolling() call here would restart
+    // the timer and fire an immediate extra fetch on every single repaint:
+    // fetch -> repaint -> "restart" polling -> immediate fetch -> repaint ->
+    // restart... an unbounded loop gated only by network speed, not the 30s
+    // interval it was meant to respect. That bug shipped earlier in this
+    // build and is what burned through the rate limit above.
+    return;
+  }
+  v.append(fileBlock(n));
+  if (n.path === 'company/contact.txt') v.append(el('div', {class:'actions'},
+    el('a', {class:'btn go', href:CONTACT_FORM_URL, target:'_blank', rel:'noopener', text:'Get in touch'})));
+  if (n.generated) v.append(el('div', {class:'actions'}, el('button', {class:'btn go', text:'Verify all files', onclick:() => run('verify')})),
+    el('p', {class:'note', text:'Built from every file on this site except status/live.json, which changes as the node runs.'}));
+}
+function renderLink(n){
+  const v = $('#view'); v.textContent = '';
+  const target = nodes.get(n.link);
+  v.append(el('p', {class:'linkcard'}, 'Symbolic link to ', el('a', {href:href(n.link), text:n.link})));
+  if (target) v.append(fileBlock(target));
+}
+function renderMissing(p){
+  const v = $('#view'); v.textContent = '';
+  v.append(el('p', {class:'note', text:`No file or folder at /${p}. Go back to / or type "tree" to see everything.`}),
+    el('div', {class:'actions'}, el('a', {class:'btn', href:'#/', text:'Open /'})));
+}
+let liveTimer = null;
+function stopLivePolling(){ if (liveTimer){ clearInterval(liveTimer); liveTimer = null; } }
+function startLivePolling(n){
+  stopLivePolling();
+  if (!STATUS_ENDPOINT) return;
+  refreshLive(n);
+  liveTimer = setInterval(() => refreshLive(n), POLL_MS);
+}
+let tickTimer = null;
+function stopTick(){ if (tickTimer){ clearInterval(tickTimer); tickTimer = null; } }
+function startTick(n){
+  stopTick();
+  tickTimer = setInterval(() => {
+    const target = document.getElementById('updated-value');
+    if (!target){ stopTick(); return; } // navigated away; DOM's gone, nothing left to tick
+    const iso = n.lastSuccessAt ? new Date(n.lastSuccessAt).toISOString() : null;
+    target.textContent = iso ? fmt(iso) + (agoText(iso) ? '  \u00b7  ' + agoText(iso) : '') : '\u2014';
+  }, 1000);
+}
+function clampNum(v, min, max){
+  if (typeof v !== 'number' || !isFinite(v)) return null;
+  if (min != null) v = Math.max(min, v);
+  if (max != null) v = Math.min(max, v);
+  return v;
+}
+const ACTIVE_LEVELS = ['primary', 'secondary', 'tertiary']; // shared enum for power layer + network link
+function clampEnum(v, allowed){
+  return allowed.includes(v) ? v : null;
+}
+function sanitizeLive(d){
+  // Whitelist + clamp every field: a compromised or misbehaving relay
+  // can only ever produce numbers in a sane range here, never markup,
+  // never unbounded payloads, never keys outside this list.
+  //
+  // RESERVED: a second telemetry source (the backup power unit's own WiFi
+  // link) is planned. When it's wired in, add its field(s) here with the
+  // same clamp treatment — and mirror the addition in trujara-gui's
+  // sanitizeLive() so the two builds never drift apart on what's trusted.
+  // active_power_layer / active_network_link below are placeholders for
+  // that same source: until it's connected they stay null and the UI
+  // shows "Not yet reporting" rather than guessing.
+  return {
+    updated: new Date(d.timestamp * 1000).toISOString(),
+    uplink_latency_ms: clampNum(d.uplink_latency_ms, 0, 60000),
+    gpu_util_pct: clampNum(d.gpu_util_pct, 0, 100),
+    gpu_in_use: typeof d.gpu_in_use === 'boolean' ? d.gpu_in_use : null,
+    gpu_temp_c: clampNum(d.gpu_temp_c, -20, 130),
+    vram_used_gb: clampNum(d.vram_used_gb, 0, 512),
+    vram_total_gb: clampNum(d.vram_total_gb, 0, 512),
+    power_draw_w: clampNum(d.power_draw_w, 0, 2000),
+    cpu_util_pct: clampNum(d.cpu_util_pct, 0, 100),
+    cpu_temp_c: clampNum(d.cpu_temp_c, -20, 130),
+    ram_used_gb: clampNum(d.ram_used_gb, 0, 1024),
+    ram_total_gb: clampNum(d.ram_total_gb, 0, 1024),
+    room_temp_c: clampNum(d.room_temp_c, -20, 60),
+    active_power_layer: clampEnum(d.active_power_layer, ACTIVE_LEVELS),
+    active_network_link: clampEnum(d.active_network_link, ACTIVE_LEVELS),
+  };
+}
+function pickLatestReading(body){
+  // The exact response shape wasn't confirmed, so this doesn't assume one:
+  // a single object under "latest" wins if present; otherwise the last
+  // element of whichever array-valued key exists (a history/log/readings
+  // list) is taken as the most recent reading, since entries arrive in
+  // chronological order.
+  if (body && typeof body.latest === 'object' && !Array.isArray(body.latest)) return body.latest;
+  if (Array.isArray(body)) return body.length ? body[body.length - 1] : null;
+  if (body && typeof body === 'object'){
+    for (const key in body){
+      if (Array.isArray(body[key]) && body[key].length){
+        const last = body[key][body[key].length - 1];
+        if (last && typeof last === 'object') return last;
+      }
+    }
+  }
+  return null;
+}
+const MIN_FETCH_GAP_MS = 2000; // hard floor, independent of the bug fixed above: no caller,
+                                // now or introduced later, can make this fire faster than this
+async function refreshLive(n){
+  if (n.fetching) return;           // never let requests overlap
+  if (Date.now() - (n.lastFetchStartedAt || 0) < MIN_FETCH_GAP_MS) return;
+  n.lastFetchStartedAt = Date.now();
+  n.fetching = true;
+  // Repaint immediately, before the fetch even starts, so the button shows
+  // "Syncing…" and disables right away — without this the button looked
+  // unresponsive for up to FETCH_TIMEOUT_MS (8s) because renderFile was
+  // previously only called once the fetch had already resolved.
+  if (currentPath() === n.path && $('#view')) renderFile(n);
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
+  try{
+    const r = await fetch(STATUS_ENDPOINT, {cache:'no-store', signal:ctrl.signal});
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const body = await r.json();
+    const latest = pickLatestReading(body);
+    if (latest && typeof latest.timestamp === 'number' && isFinite(latest.timestamp)){
+      n.live = sanitizeLive(latest);
+      n.body = JSON.stringify(n.live, null, 2) + '\n';
+      n.mtime = n.live.updated;
+      n.size = enc.encode(n.body).length;
+    }
+    n.err = null;            // reachable, even if there's no reading yet
+    n.lastSuccessAt = Date.now(); // drives the UPDATED row below — moves on every
+                                   // successful check, not on the reading's own age
+  }catch(e){
+    // Keep the last known-good reading on screen; only the STATE row
+    // flips to "unreachable" — a blip in the relay shouldn't blank
+    // out real data the visitor already has.
+    n.err = e.name === 'AbortError' ? 'timed out' : String(e.message || e);
+  }finally{
+    clearTimeout(timer);
+  }
+  n.fetching = false;
+  if (currentPath() === n.path && $('#view')) renderFile(n);
+}
+
+const currentPath = () => decodeURIComponent(location.hash.replace(/^#\/?/, ''));
+function show(p){
+  p = p.replace(/\/+$/, '');
+  if (p !== 'status/live.json'){ stopLivePolling(); stopTick(); }
+  const n = nodes.get(p);
+  renderCrumbs(p);
+  if (!n){ cwd = parentOf(p); renderMissing(p); }
+  else if (n.type === 'dir'){ cwd = p; renderDir(n); }
+  else { cwd = parentOf(p); n.type === 'link' ? renderLink(n) : renderFile(n); }
+  document.title = 'trujara-node01:/' + p;
+  $('#ps').textContent = `guest@trujara-node01:/${cwd}$`;
+  if (p === 'status/live.json' && n && n.dynamic){ startLivePolling(n); startTick(n); }
+}
+window.addEventListener('hashchange', () => show(currentPath()));
+const go = p => { if (currentPath() === p) show(p); else location.hash = href(p); };
+
+/* ---------- terminal ---------- */
+const out = $('#out'), input = $('#cmd');
+function print(text, cls){
+  out.append(el('div', {class:'line ' + (cls||''), text}));
+  out.scrollTop = out.scrollHeight;
+}
+function treeLines(d, prefix, lines){
+  d.children.forEach((c, i) => {
+    const last = i === d.children.length - 1;
+    lines.push(prefix + (last ? '\u2514\u2500 ' : '\u251c\u2500 ') + c.name + (c.type==='dir' ? '/' : c.type==='link' ? ' -> ' + c.link : ''));
+    if (c.type === 'dir') treeLines(c, prefix + (last ? '   ' : '\u2502  '), lines);
+  });
+  return lines;
+}
+async function verify(){
+  if (!hashed()[0].hash){ print('This browser can\u2019t compute SHA-256 here. Open the site over https.', 'bad'); return; }
+  const man = nodes.get('manifest.sha256');
+  const expected = man.body.trim().split('\n').map(l => { const m = l.match(/^(\S+)\s+(.+)$/); return [m[2], m[1]]; });
+  print('recomputing ' + expected.length + ' hashes against manifest.sha256');
+  let ok = 0;
+  for (const [path, h] of expected){
+    const n = nodes.get(path);
+    const now = n ? await sha256(n.body) : null;
+    const pass = now === h;
+    if (pass) ok++;
+    print((pass ? 'OK    ' : 'FAIL  ') + path, pass ? 'ok' : 'bad');
+    await wait(70);
+  }
+  print(`${ok} of ${expected.length} files match the manifest`, ok === expected.length ? 'ok' : 'bad');
+}
+const HELP = [
+  'ls [path]         list a folder',
+  'cd [path]         open a folder',
+  'cat <file>        print a file here',
+  'open <path>       show a file or folder above',
+  'tree              show every file',
+  'sha256sum [file]  print hashes',
+  'verify            check every file against the manifest',
+  'pwd, whoami, clear',
+];
+const history = []; let hi = 0;
+async function run(line){
+  line = line.trim(); if (!line) return;
+  history.push(line); hi = history.length;
+  print(`${$('#ps').textContent} ${line}`, 'echo');
+  const [cmd, arg] = line.split(/\s+/);
+  const target = resolve(arg, cwd);
+  const n = nodes.get(target);
+  switch (cmd){
+    case 'help': HELP.forEach(h => print(h)); break;
+    case 'ls': {
+      const d = deref(n);
+      if (!d) print(`ls: ${arg}: no such file or folder`, 'bad');
+      else if (d.type !== 'dir') print(d.name);
+      else d.children.forEach(c => print(c.type==='dir' ? c.name + '/' : c.type==='link' ? `${c.name} -> ${c.link}` : c.name, c.type==='dir' ? 'dir' : ''));
+      break; }
+    case 'cd': {
+      const d = arg ? deref(n) : nodes.get('');
+      if (!d) print(`cd: ${arg}: no such folder`, 'bad');
+      else if (d.type !== 'dir') print(`cd: ${arg}: not a folder`, 'bad');
+      else go(d.path);
+      break; }
+    case 'cat': {
+      const f = deref(n);
+      if (!arg) print('cat: name a file, for example: cat latest', 'bad');
+      else if (!f) print(`cat: ${arg}: no such file`, 'bad');
+      else if (f.type === 'dir') print(`cat: ${arg}: is a folder`, 'bad');
+      else f.body.replace(/\n$/, '').split('\n').forEach(l => print(l));
+      break; }
+    case 'open':
+      if (!n) print(`open: ${arg}: no such file or folder`, 'bad'); else go(target);
+      break;
+    case 'pwd': print('/' + cwd); break;
+    case 'whoami': print('guest (read-only)'); break;
+    case 'tree': print('/', 'dir'); treeLines(nodes.get(''), '', []).forEach(l => print(l)); break;
+    case 'sha256sum': {
+      const list = arg ? [deref(n)] : hashed();
+      if (!list[0]) print(`sha256sum: ${arg}: no such file`, 'bad');
+      else list.forEach(f => f.type === 'dir' ? print(`sha256sum: ${f.path}: is a folder`, 'bad') : print(`${f.hash}  ${f.path}`));
+      break; }
+    case 'verify': await verify(); break;
+    case 'clear': out.textContent = ''; break;
+    case 'sudo': print('guest is not in the sudoers file. This will be reported.', 'bad'); break;
+    default: print(`${cmd}: command not found. Type help for the list.`, 'bad');
+  }
+}
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter'){ const v = input.value; input.value = ''; run(v); }
+  else if (e.key === 'ArrowUp' && hi > 0){ input.value = history[--hi]; e.preventDefault(); }
+  else if (e.key === 'ArrowDown'){ hi = Math.min(history.length, hi + 1); input.value = history[hi] || ''; }
+});
+['help','ls','tree','cat latest','verify'].forEach(c =>
+  $('#chips').append(el('button', {class:'btn', type:'button', text:c, onclick:() => run(c)})));
+
+/* ---------- node mesh background ----------
+   Purely decorative, local canvas rendering — no network calls, so it
+   carries none of the polling/rate-limit concerns that apply to the
+   live status panel. Colors are read from the theme's own --green /
+   --violet variables so it matches light or dark mode automatically. */
+function initMesh(canvasEl, density, maxDist){
+  const ctx = canvasEl.getContext('2d');
+  let w, h, pts;
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const hexToRgb = hex => {
+    const s = hex.trim().replace('#', '');
+    return [0, 2, 4].map(i => parseInt(s.substring(i, i + 2), 16));
+  };
+  const style = getComputedStyle(document.documentElement);
+  const [lr, lg, lb] = hexToRgb(style.getPropertyValue('--green'));
+  const [dr, dg, db] = hexToRgb(style.getPropertyValue('--violet'));
+  function resize(){ w = canvasEl.width = innerWidth; h = canvasEl.height = innerHeight; }
+  function makePts(){
+    const count = Math.max(20, Math.floor((w * h) / density));
+    pts = Array.from({length: count}, () => ({
+      x: Math.random() * w, y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.22, vy: (Math.random() - 0.5) * 0.22,
+      r: Math.random() * 1.6 + 0.8
+    }));
+  }
+  function step(){
+    ctx.clearRect(0, 0, w, h);
+    for (const p of pts){
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > w) p.vx *= -1;
+      if (p.y < 0 || p.y > h) p.vy *= -1;
+    }
+    for (let a = 0; a < pts.length; a++) for (let b = a + 1; b < pts.length; b++){
+      const dx = pts[a].x - pts[b].x, dy = pts[a].y - pts[b].y, dist = Math.hypot(dx, dy);
+      if (dist < maxDist){
+        ctx.strokeStyle = `rgba(${lr},${lg},${lb},${(1 - dist / maxDist) * 0.28})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(pts[a].x, pts[a].y); ctx.lineTo(pts[b].x, pts[b].y); ctx.stroke();
+      }
+    }
+    for (const p of pts){
+      ctx.fillStyle = `rgba(${dr},${dg},${db},0.85)`;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+    }
+    if (!reduceMotion) requestAnimationFrame(step);
+  }
+  resize(); makePts(); step();
+  addEventListener('resize', () => { resize(); makePts(); if (reduceMotion) step(); });
+}
+initMesh($('#meshCanvas'), 9000, 140);
+
+/* ---------- boot ---------- */
+(async () => {
+  for (const n of hashed()) await seal(n);
+  const live = nodes.get('status/live.json');
+  live.live = PLACEHOLDER_LIVE;
+  live.body = JSON.stringify(PLACEHOLDER_LIVE, null, 2) + '\n';
+  live.size = enc.encode(live.body).length;
+  const man = nodes.get('manifest.sha256');
+  man.body = hashed().map(n => `${n.hash || 'unavailable'}  ${n.path}`).join('\n') + '\n';
+  await seal(man);
+  print('Type help, or tap a command.');
+  show(currentPath());
+})();
+</script>
+</body>
+</html>
