@@ -1,5 +1,9 @@
 <!doctype html>
-<!-- trujara-fs build: v21 — 2026-09-25 — MOCKUP, NOT PUBLISHED — synced with trujara-gui build v10
+<!-- trujara-fs build: v22 — 2026-09-25 — MOCKUP, NOT PUBLISHED — synced with trujara-gui build v11
+     Changelog v21 -> v22:
+       - contact mechanism replaced: Google Form link removed entirely, now a
+         direct mailto: to hello@trujara.com — company/contact.txt's body text
+         and the page's action button both updated to match
      Changelog v20 -> v21:
        - POWER legend moved to sit directly under the POWER section (between
          ACTIVE LAYER and the NETWORK heading) instead of being appended after
@@ -239,7 +243,7 @@ footer{margin-top:26px;color:var(--muted);font-size:var(--fs-sm)}
 const STATUS_ENDPOINT = 'https://trujara-status.genplay110.workers.dev';
 
 /* Same destination as the "Contact us" button on the main site. */
-const CONTACT_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSexe1Gn7YYbEql_nK_OYASJa4neUQbedY8lhuJDUHdiAGA_OQ/viewform?usp=dialog';
+const CONTACT_EMAIL = 'hello@trujara.com';
 
 const FILES = [
 {path:'readme.txt', mtime:'2026-09-22T10:02', body:
@@ -366,10 +370,12 @@ standard we'll carry as we scale. This
 isn't a promise. It's what's running
 right now.
 `},
-{path:'company/contact.txt', mtime:'2026-09-22T09:31', body:
+{path:'company/contact.txt', mtime:'2026-09-25', body:
 `Evaluating compute for a project, or have
-a question about how we operate? Leave
-your email and we'll follow up directly.
+a question about how we operate? Email us
+directly, we'll follow up personally.
+
+email     hello@trujara.com
 `},
 {path:'latest', link:'roadmap/now.txt', mtime:'2026-09-22T09:59'},
 {path:'manifest.sha256', generated:true, mtime:'2026-09-22T10:05', body:''},
@@ -659,7 +665,7 @@ function renderFile(n){
   }
   v.append(fileBlock(n));
   if (n.path === 'company/contact.txt') v.append(el('div', {class:'actions'},
-    el('a', {class:'btn go', href:CONTACT_FORM_URL, target:'_blank', rel:'noopener', text:'Get in touch'})));
+    el('a', {class:'btn go', href:'mailto:'+CONTACT_EMAIL, text:'Email us'})));
   if (n.generated) v.append(el('div', {class:'actions'}, el('button', {class:'btn go', text:'Verify all files', onclick:() => run('verify')})),
     el('p', {class:'note', text:'Built from every file on this site except status/live.json, which changes as the node runs.'}));
 }
