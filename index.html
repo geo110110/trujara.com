@@ -1,5 +1,20 @@
 <!doctype html>
-<!-- trujara-fs build: v23 — 2026-09-25 — MOCKUP, NOT PUBLISHED — synced with trujara-gui build v11
+<!-- trujara-fs build: v24 — 2026-09-25 — MOCKUP, NOT PUBLISHED — synced with trujara-gui build v11
+     Changelog v23 -> v24: real-device bug fixes, found from actual iPhone
+       and large-monitor screenshots (my earlier DOM test checked structure/
+       content, not per-breakpoint rendering — this is what that missed):
+       - grid column minimum raised 150px -> 240px. At 150px, phones were
+         getting forced into 2 narrow columns where the fixed-width label
+         left no room for the value, wrapping every single row onto two
+         lines — taller AND narrower than the original single-column list,
+         the opposite of the goal. 240px reliably keeps all current phones
+         single-column (where rows render inline exactly as before) while
+         still giving 2-3 columns on tablets/desktops/large monitors.
+       - NETWORK's grid-column:1/-1 full-width span removed — on a wide
+         screen this stretched a 2-row card across 4 columns' worth of
+         width while its content only filled the first one, leaving an
+         empty gap the width of the other three. It's now a normal card,
+         sized like its siblings.
      Changelog v22 -> v23:
        - live.json redesign: sync button + STATE moved into a sticky header
          (position:sticky) that stays visible while scrolling, instead of
@@ -163,7 +178,7 @@ pre.body{margin:0;background:var(--panel);border:1px solid var(--line);border-ra
   border-bottom:1px solid var(--line);border-radius:6px 6px 0 0}
 .stat-sticky-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .stat-sticky-sub{color:var(--muted);font-size:var(--fs-xs);margin-top:4px}
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));column-gap:20px}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));column-gap:20px}
 .stat-card{padding:6px 0}
 .stat-card .stat-section{padding-top:8px}
 .stat-card:first-child .stat-section{padding-top:14px}
@@ -653,7 +668,7 @@ function liveStatsBlock(n){
       statRow('AMBIENT TEMPERATURE', tempStr(live.room_temp_c))),
     el('div', {class:'stat-card'}, statSection('POWER'),
       el('div', {class:'statrow'}, el('span', {class:'k', text:'ACTIVE LAYER'}), el('span', {class:'v'}, activeLevelTag(live.active_power_layer)))),
-    el('div', {class:'stat-card', style:'grid-column:1/-1'}, statSection('NETWORK'),
+    el('div', {class:'stat-card'}, statSection('NETWORK'),
       el('div', {class:'statrow'}, el('span', {class:'k', text:'ACTIVE LINK'}), el('span', {class:'v'}, activeLevelTag(live.active_network_link))),
       statRow('UPLINK LATENCY', msStr(live.uplink_latency_ms))));
 
