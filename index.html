@@ -1,5 +1,17 @@
 <!doctype html>
-<!-- trujara-fs build: v24 — 2026-09-25 — MOCKUP, NOT PUBLISHED — synced with trujara-gui build v11
+<!-- trujara-fs build: v25 — 2026-09-27 — MOCKUP, NOT PUBLISHED — synced with trujara-gui build v11
+     Changelog v24 -> v25: fixed "cat latest" — a longstanding bug, unrelated
+       to the live.json redesign, first surfaced when clicked from a non-root
+       folder. `latest` is a root-level shortcut (links to roadmap/now.txt),
+       but cat resolves its argument relative to the current folder, not
+       from root — so `cat latest` typed/clicked while inside e.g. /status
+       resolved to the nonexistent status/latest and failed. Fixed by using
+       an absolute path (cat /latest) in the quick-action button and in the
+       argument-missing hint text, so it now works identically from any
+       folder. Verified directly against the real resolve() function, not
+       just asserted: reproduced the exact broken output for both folders
+       shown in the bug report, then confirmed the fix resolves correctly
+       from status, roadmap, and root alike.
      Changelog v23 -> v24: real-device bug fixes, found from actual iPhone
        and large-monitor screenshots (my earlier DOM test checked structure/
        content, not per-breakpoint rendering — this is what that missed):
@@ -923,7 +935,7 @@ async function run(line){
       break; }
     case 'cat': {
       const f = deref(n);
-      if (!arg) print('cat: name a file, for example: cat latest', 'bad');
+      if (!arg) print('cat: name a file, for example: cat /latest', 'bad');
       else if (!f) print(`cat: ${arg}: no such file`, 'bad');
       else if (f.type === 'dir') print(`cat: ${arg}: is a folder`, 'bad');
       else f.body.replace(/\n$/, '').split('\n').forEach(l => print(l));
@@ -950,7 +962,7 @@ input.addEventListener('keydown', e => {
   else if (e.key === 'ArrowUp' && hi > 0){ input.value = history[--hi]; e.preventDefault(); }
   else if (e.key === 'ArrowDown'){ hi = Math.min(history.length, hi + 1); input.value = history[hi] || ''; }
 });
-['help','ls','tree','cat latest','verify'].forEach(c =>
+['help','ls','tree','cat /latest','verify'].forEach(c =>
   $('#chips').append(el('button', {class:'btn', type:'button', text:c, onclick:() => run(c)})));
 
 /* ---------- node mesh background ----------
