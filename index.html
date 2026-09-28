@@ -1,145 +1,15 @@
 <!doctype html>
-<!-- trujara-fs build: v27 — 2026-09-28 — MOCKUP, NOT PUBLISHED — synced with trujara-gui build v12
-     Changelog v26 -> v27: new DEGRADED state. If the reading is fresh but the
-       GPU isn't reporting (gpu_util_pct or gpu_in_use is null — the rig now
-       sends null, not made-up numbers, when nvidia-smi fails), STATE shows
-       amber DEGRADED with a one-line explanation instead of a green
-       OPERATIONAL. STALE and UNREACHABLE still take priority. GPU rows
-       already rendered null as a dash and IN USE as UNKNOWN; unchanged.
-     Changelog v25 -> v26: fixed a real transparency bug, caught by a live
-       screenshot after a genuine rig restart. STATE correctly flipped to
-       STALE (that part was already working) — but the sub-line still said
-       "UPDATED ... 2s ago", because that value came from when the browser
-       last successfully POLLED the Worker, not from the reading's own age.
-       A stale reading right next to "2s ago" reads as a contradiction.
-       Split into two honestly separate, distinctly labeled values:
-       CHECKED (poll success — confirms the Worker itself is reachable) and
-       READING (the actual data's real age — what STATE is based on).
-       Verified against the real code with a fake stale-but-reachable
-       scenario matching the report exactly: reading 11 minutes old, check
-       succeeded 2 seconds ago — confirmed STATE=STALE now renders next to
-       READING 11m ago, not a misleadingly fresh-looking timestamp.
-     Changelog v24 -> v25: fixed "cat latest" — a longstanding bug, unrelated
-       to the live.json redesign, first surfaced when clicked from a non-root
-       folder. `latest` is a root-level shortcut (links to roadmap/now.txt),
-       but cat resolves its argument relative to the current folder, not
-       from root — so `cat latest` typed/clicked while inside e.g. /status
-       resolved to the nonexistent status/latest and failed. Fixed by using
-       an absolute path (cat /latest) in the quick-action button and in the
-       argument-missing hint text, so it now works identically from any
-       folder. Verified directly against the real resolve() function, not
-       just asserted: reproduced the exact broken output for both folders
-       shown in the bug report, then confirmed the fix resolves correctly
-       from status, roadmap, and root alike.
-     Changelog v23 -> v24: real-device bug fixes, found from actual iPhone
-       and large-monitor screenshots (my earlier DOM test checked structure/
-       content, not per-breakpoint rendering — this is what that missed):
-       - grid column minimum raised 150px -> 240px. At 150px, phones were
-         getting forced into 2 narrow columns where the fixed-width label
-         left no room for the value, wrapping every single row onto two
-         lines — taller AND narrower than the original single-column list,
-         the opposite of the goal. 240px reliably keeps all current phones
-         single-column (where rows render inline exactly as before) while
-         still giving 2-3 columns on tablets/desktops/large monitors.
-       - NETWORK's grid-column:1/-1 full-width span removed — on a wide
-         screen this stretched a 2-row card across 4 columns' worth of
-         width while its content only filled the first one, leaving an
-         empty gap the width of the other three. It's now a normal card,
-         sized like its siblings.
-     Changelog v22 -> v23:
-       - live.json redesign: sync button + STATE moved into a sticky header
-         (position:sticky) that stays visible while scrolling, instead of
-         trailing after a long single-column stack — fixes "scroll down to
-         sync, scroll back up" on tall content
-       - GPU/SYSTEM/ENVIRONMENT/POWER/NETWORK reflowed into a responsive
-         two-column grid (auto-fit/minmax, collapses to one column on its
-         own if the viewport's too narrow) — every field, every label,
-         every value from before is still here, just packed side by side
-         instead of stacked one-per-row; nothing summarized or dropped
-       - the two separate legends merged into one shared legend, since both
-         used identical Primary/Secondary/Tertiary/Not connected wording —
-         now sits once, outside the box, right-aligned below it
-       - verified against a real DOM execution test (not just syntax check)
-         confirming every original label/value still renders correctly
-     Changelog v21 -> v22 (previously shipped under the -production/
-       -staging filenames; this file's own header had lagged behind):
-       contact mechanism replaced — Google Form link removed, now a direct
-       mailto: to hello@trujara.com.
-     Changelog v20 -> v21:
-       - POWER legend moved to sit directly under the POWER section (between
-         ACTIVE LAYER and the NETWORK heading) instead of being appended after
-         the whole panel — was reading as unrelated to either section
-       - POWER legend wording reverted from real hardware names
-         (Grid/Solar/Solar Battery/Battery/UPS) back to the same ambiguous
-         Primary/Secondary/Tertiary/Not connected wording as the network
-         legend — matches power.txt's own deliberately ambiguous phrasing
-     Changelog v19 -> v20: added the (since-reworded) placeholder power
-       legend; dropped "— ILL" from Primary.
-     Changelog v19:
-       - network legend: dropped "— ILL" suffix, now just "Primary"
-       - added a placeholder POWER legend (Grid/Solar/Solar Battery/Battery/UPS,
-         static, non-pulsing) — no live data drives it yet (inverter WiFi
-         telemetry isn't wired in), shown ahead of the data per request. Note:
-         this names the real hardware layers, reversing an earlier request to
-         keep power.txt's prose deliberately ambiguous — power.txt itself is
-         UNCHANGED this round, only this new placeholder legend names them
-     Changelog v18 -> v19: legend dots no longer pulse (static reference key
-       now); removed the word "Legend:".
-     Changelog v18:
-       - legend dots for ACTIVE LAYER/LINK no longer pulse — they're a static
-         reference key now (new .legend-swatch class, no animation); only the
-         real live indicator dot pulses/glows, so the eye is drawn to what's
-         actually current, not to the key explaining it
-       - removed the word "Legend:" — the dot+label pairing is self-explanatory
-     Prior changelog (v17 -> v18): dot-only pulse redesign (no pill/box),
-       green/purple/amber/red recoloring, CSP added.
-     Changelog v17:
-       - status tags (OPERATIONAL, COMING SOON, IN USE, ACTIVE LAYER/LINK, etc.)
-         redesigned: dot-only pulse, no pill/box background — was pulsing the
-         whole box via box-shadow, now only the small dot pulses (slower,
-         brighter glow), applied uniformly to all four colors, not just green
-       - ACTIVE LAYER/LINK recolored to the requested scheme: green=Primary
-         (ILL), purple=Secondary, amber=Tertiary, red=not connected/not yet
-         reporting; legend updated to match
-       - added a Content-Security-Policy meta tag (see comment above it for
-         the reasoning on script-src 'unsafe-inline' vs. what's actually
-         locking things down: connect-src restricted to this site's own
-         status Worker domain, object-src/base-uri/form-action closed)
-     Prior changelog (v16 -> v17): fixed a malformed HTML comment from a
-     prior edit; "IN USE" converted to a proper statusTag pill.
-     Changelog v16:
-       - fixed: a prior edit left a malformed HTML comment (text sitting
-         outside the comment, which would have rendered as visible garbage
-         at the top of the page) — cleaned up, verified no stray content
-         remains outside any comment block
-       - all OPERATIONAL-style green indicators now pulse consistently:
-         "IN USE" is now a proper statusTag pill (reuses the same pulsing
-         .tag-ok style as everything else) instead of plain static text
-       - status/live.json now shows a color-key legend for ACTIVE LAYER /
-         ACTIVE LINK (Primary/Secondary/Tertiary/Not yet reporting)
-       - active_power_layer/active_network_link now come from the status
-         Worker's new POST /infra path (separate, separately-authenticated
-         write source — see the Worker's v5 changelog), merged server-side
-         into GET /'s response; no other client-side change was needed
-     Changelog v14 -> v16: real logo/favicon embedded, ACTIVE LAYER/LINK
-     indicators added, power/network copy reworded, header cleanup, Sync
-     telemetry rename + fix, reserved telemetry-source note added. -->
+<!-- trujara-fs build: v28 — 2026-09-28 — new status card (RUNNING ON / BACKUP), standardized layout, security-hardened; production (points at the production status Worker) -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<!-- CSP note: this is a static single-file page with no build/templating
-     step, so a hash- or nonce-based script-src isn't realistically
-     maintainable here (it would silently break on the next inline-script
-     edit unless someone remembers to regenerate the hash). script-src
-     therefore allows 'unsafe-inline'; the actual XSS defense is that this
-     codebase never uses innerHTML/outerHTML/eval/Function()/document.write
-     anywhere — every value from the status Worker is written via
-     textContent, never parsed as markup. What this policy DOES meaningfully
-     lock down: connect-src restricts network calls to exactly this site's
-     own status Worker (nothing else this page could ever be tricked into
-     exfiltrating to), and object-src/base-uri/form-action are fully closed
-     since none of them are used by this page at all. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://trujara-status.genplay110.workers.dev; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none';">
+<!-- CSP note: script and style are locked to this file's own inline blocks by
+     SHA-256 hash rather than a blanket inline allowance, so injected script or style cannot run.
+     The hashes are recomputed by the build every time the file changes. Network
+     calls are limited to the status Worker below; object, base and form are
+     closed. frame-ancestors cannot be set from a <meta> tag, so it is sent as an
+     HTTP header (see vercel.json / _headers). -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-qaiD+24PVLlil5BmV1wkb08jNAIO2xn8hM4RptxyLMU='; style-src 'self' 'sha256-xc77Nfpm6TrhpZc4F38pIF9dX+UfGBsPOZ7Nx5da9Es=' https://fonts.googleapis.com; style-src-attr 'none'; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://trujara-status.genplay110.workers.dev; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%20width%3D%2264%22%20height%3D%2264%22%3E%0A%3Cg%3E%0A%20%20%3Cline%20x1%3D%2216%22%20y1%3D%2216%22%20x2%3D%2248%22%20y2%3D%2216%22%20stroke%3D%22%232A9C6C%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.6%22/%3E%0A%20%20%3Cline%20x1%3D%2216%22%20y1%3D%2216%22%20x2%3D%2216%22%20y2%3D%2248%22%20stroke%3D%22%232A9C6C%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.6%22/%3E%0A%20%20%3Cline%20x1%3D%2248%22%20y1%3D%2216%22%20x2%3D%2248%22%20y2%3D%2248%22%20stroke%3D%22%232A9C6C%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.6%22/%3E%0A%20%20%3Cline%20x1%3D%2216%22%20y1%3D%2248%22%20x2%3D%2248%22%20y2%3D%2248%22%20stroke%3D%22%232A9C6C%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.6%22/%3E%0A%20%20%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%228%22%20fill%3D%22%233DDC97%22/%3E%0A%20%20%3Ccircle%20cx%3D%2248%22%20cy%3D%2216%22%20r%3D%226.4%22%20fill%3D%22%23B4A3FF%22/%3E%0A%20%20%3Ccircle%20cx%3D%2216%22%20cy%3D%2248%22%20r%3D%226.4%22%20fill%3D%22%23B4A3FF%22/%3E%0A%20%20%3Ccircle%20cx%3D%2248%22%20cy%3D%2248%22%20r%3D%228%22%20fill%3D%22%233DDC97%22/%3E%0A%3C/g%3E%0A%3C/svg%3E">
 <title>trujara-node01:/</title>
@@ -210,17 +80,17 @@ pre.body{margin:0;background:var(--panel);border:1px solid var(--line);border-ra
 .stat-sticky-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .stat-sticky-sub{color:var(--muted);font-size:var(--fs-xs);margin-top:4px}
 .stat-sticky-note{color:var(--amber);font-size:var(--fs-xs);margin-top:4px}
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));column-gap:20px}
+.stat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:28px}
+@media (max-width:640px){.stat-grid{grid-template-columns:minmax(0,1fr)}}
 .stat-card{padding:6px 0}
 .stat-card .stat-section{padding-top:8px}
-.stat-card:first-child .stat-section{padding-top:14px}
-.stat-legend{display:flex;justify-content:flex-end;gap:16px;flex-wrap:wrap;margin:10px 2px 0}
+.stat-card:nth-child(-n+2) .stat-section{padding-top:14px}
 .stat-section{padding:14px 0 2px;font-size:var(--fs-xs);color:var(--violet);letter-spacing:.04em}
 .stat-section:first-child{padding-top:2px}
 .statrow{display:flex;align-items:baseline;gap:14px;padding:7px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .statrow:last-child{border-bottom:0}
-.statrow .k{color:var(--muted);width:15ch;flex:none}
-.statrow .v{font-weight:500}
+.statrow .k{color:var(--muted);width:20ch;flex:none}
+.statrow .v{font-weight:500;font-variant-numeric:tabular-nums}
 .statrow .src{margin-left:auto;color:var(--muted);font-size:var(--fs-xs)}
 .state-online{color:var(--green)} .state-stale{color:var(--amber)}
 .state-pre{color:var(--muted)} .state-offline{color:var(--bad)}
@@ -233,7 +103,8 @@ pre.body{margin:0;background:var(--panel);border:1px solid var(--line);border-ra
 .tag-bad .tag-dot{background:var(--bad);box-shadow:0 0 8px 1px var(--bad)}
 .tag-pending .tag-dot{background:var(--violet);box-shadow:0 0 8px 1px var(--violet)}
 @keyframes dotpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.35)}}
-.legend-swatch{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}
+.tag-mute .tag-dot{background:var(--muted);box-shadow:none;animation:none;opacity:.7}
+.tag-ring .tag-dot{box-sizing:border-box;background:transparent;box-shadow:none;animation:none;border:1.5px solid var(--muted)}
 .tag-row{margin:2px 0 16px}
 .rawbox{margin-top:14px}
 .rawbox summary{cursor:pointer;color:var(--muted);font-size:var(--fs-sm);padding:2px 0}
@@ -565,34 +436,30 @@ function row(n, label){
   return el('a', {class:'row', href:href(n.path)}, el('span', {class:'t '+t, text:t}), name, meta);
 }
 function statusTag(label, kind){
-  // kind: 'ok' (pulsing green) | 'warn' (amber) | 'bad' (red) | 'pending' (violet)
+  // kind: 'ok' (pulsing green) | 'warn' (amber) | 'bad' (red) | 'pending' (violet) | 'ring' (hollow, ready) | 'mute' (grey, not reporting)
   return el('span', {class:'tag tag-' + kind}, el('span', {class:'tag-dot'}), label);
 }
-function activeLevelTag(level){
-  // Color scheme: green = primary link (ILL), purple = secondary, amber =
-  // tertiary, red = not connected. When the source hasn't started reporting
-  // yet — before the N150 script and/or inverter WiFi integration is wired
-  // in — that's shown the same way as "not connected": red, since a viewer
-  // has no way to tell "no data yet" from "actually down," and treating it
-  // as the more urgent state is the honest default.
-  if (level === 'primary') return statusTag('PRIMARY', 'ok');       // green
-  if (level === 'secondary') return statusTag('SECONDARY', 'pending'); // purple
-  if (level === 'tertiary') return statusTag('TERTIARY', 'warn');   // amber
-  return statusTag('NOT YET REPORTING', 'bad');                     // red
+function levelTag(level){
+  // Primary = green, Secondary = violet, Tertiary = amber. Anything else is
+  // "not reporting" in neutral grey: unknown is not a fault, so it is never red.
+  if (level === 'primary') return statusTag('PRIMARY', 'ok');
+  if (level === 'secondary') return statusTag('SECONDARY', 'pending');
+  if (level === 'tertiary') return statusTag('TERTIARY', 'warn');
+  return statusTag('NOT REPORTING', 'mute');
 }
-function staticLegend(items, cls){
-  // Generic static (non-pulsing) color key. Legend swatches never pulse —
-  // only the real live indicator dot does — so the eye is drawn to what's
-  // actually current, not to the key explaining it.
-  const dot = kind => el('span', {class:'legend-swatch', style:'background:currentColor;color:var(--'+kind+');margin-right:5px;display:inline-block;'});
-  const item = (label, colorVar) => el('span', {style:'margin-right:16px;white-space:nowrap;display:inline-flex;align-items:center;'}, dot(colorVar), label);
-  return el('p', {class: cls || 'note'}, ...items.map(([label, colorVar]) => item(label, colorVar)));
+function backupTag(state){
+  if (state === 'ready') return statusTag('READY', 'ring');
+  if (state === 'low') return statusTag('LOW', 'warn');
+  if (state === 'none') return statusTag('NONE AVAILABLE', 'mute');
+  return statusTag('NOT REPORTING', 'mute');
 }
-function sharedLegend(){
-  // Single legend covering both ACTIVE LAYER and ACTIVE LINK — they use the
-  // identical Primary/Secondary/Tertiary/Not connected wording, so one key
-  // serves both rather than repeating it twice.
-  return staticLegend([['Primary', 'green'], ['Secondary', 'violet'], ['Tertiary', 'amber'], ['Not connected', 'bad']], 'stat-legend');
+function freshPower(n){
+  const p = n && n.power;
+  if (!p || p.state !== 'ok' || p.as_of == null) return null;
+  return (Date.now() / 1000 - p.as_of) <= POWER_STALE_S ? p : null;
+}
+function tagRow(k, tag){
+  return el('div', {class:'statrow'}, el('span', {class:'k', text:k}), el('span', {class:'v'}, tag));
 }
 function fileBlock(n){
   const frag = document.createDocumentFragment();
@@ -659,11 +526,13 @@ function stateRow(label, kind){
     el('span', {class:'k', text:'STATE'}),
     el('span', {class:'v'}, statusTag(label, kind)));
 }
-const pctStr = v => v != null ? v + '%' : '\u2014';
-const tempStr = v => v != null ? v + ' \u00b0C' : '\u2014';
-const wattStr = v => v != null ? v + ' W' : '\u2014';
-const msStr = v => v != null ? Math.round(v) + ' ms' : '\u2014';
-const gbStr = (used, total) => (used != null && total != null) ? used + ' / ' + total + ' GB' : '\u2014';
+const DASH = '\u2014';
+const isNum = v => typeof v === 'number' && isFinite(v);
+const pctStr = v => isNum(v) ? Math.round(v) + ' %' : DASH;
+const tempStr = v => isNum(v) ? v.toFixed(1) + ' \u00b0C' : DASH;
+const wattStr = v => isNum(v) ? v.toFixed(1) + ' W' : DASH;
+const msStr = v => isNum(v) ? Math.round(v) + ' ms' : DASH;
+const gbStr = (used, total) => (isNum(used) && isNum(total)) ? used.toFixed(1) + ' / ' + total.toFixed(1) + ' GB' : DASH;
 function liveStatsBlock(n){
   const [label, kind] = liveState(n);
   const live = n.live || {};
@@ -703,6 +572,8 @@ function liveStatsBlock(n){
   // same values, nothing summarized or dropped, just packed more
   // efficiently. auto-fit/minmax collapses to a single column on its own
   // if the viewport's too narrow for two — no separate breakpoint needed.
+  const pw = freshPower(n);
+  const powerLevel = (pw && pw.active_layer) || live.active_power_layer || null;
   const grid = el('div', {class:'stat-grid'},
     el('div', {class:'stat-card'}, statSection('GPU'),
       statRow('UTILIZATION', pctStr(live.gpu_util_pct)),
@@ -714,22 +585,22 @@ function liveStatsBlock(n){
     el('div', {class:'stat-card'}, statSection('SYSTEM'),
       statRow('CPU UTILIZATION', pctStr(live.cpu_util_pct)),
       statRow('CPU TEMPERATURE', tempStr(live.cpu_temp_c)),
-      statRow('RAM', gbStr(live.ram_used_gb, live.ram_total_gb))),
-    el('div', {class:'stat-card'}, statSection('ENVIRONMENT'),
+      statRow('RAM', gbStr(live.ram_used_gb, live.ram_total_gb)),
       statRow('AMBIENT TEMPERATURE', tempStr(live.room_temp_c))),
     el('div', {class:'stat-card'}, statSection('POWER'),
-      el('div', {class:'statrow'}, el('span', {class:'k', text:'ACTIVE LAYER'}), el('span', {class:'v'}, activeLevelTag(live.active_power_layer)))),
+      tagRow('RUNNING ON', levelTag(powerLevel)),
+      tagRow('BACKUP', backupTag(pw ? pw.backup : null))),
     el('div', {class:'stat-card'}, statSection('NETWORK'),
-      el('div', {class:'statrow'}, el('span', {class:'k', text:'ACTIVE LINK'}), el('span', {class:'v'}, activeLevelTag(live.active_network_link))),
+      tagRow('RUNNING ON', levelTag(live.active_network_link)),
       statRow('UPLINK LATENCY', msStr(live.uplink_latency_ms))));
 
   const box = el('div', {class:'stat-out'}, sticky, grid);
   const frag = document.createDocumentFragment();
   frag.append(box);
-  frag.append(sharedLegend());
-  const details = el('details', {class:'rawbox'}, el('summary', {text:'raw (validated fields only)'}), el('pre', {class:'body', text:n.body}));
-  frag.append(details);
   return frag;
+}
+function rawBlock(n){
+  return el('details', {class:'rawbox'}, el('summary', {text:'raw (validated fields only)'}), el('pre', {class:'body', text:n.body}));
 }
 const SYNC_COOLDOWN_MS = 5000; // floor between manual syncs, independent of fetch speed
 async function manualSync(n){
@@ -748,8 +619,9 @@ function renderFile(n){
     // instead of trailing after every stat card.
     v.append(liveStatsBlock(n));
     v.append(el('p', {class:'note', text: STATUS_ENDPOINT
-      ? 'Polls the status relay every 30s, or immediately with Sync telemetry. A reading older than 6 minutes is shown as stale rather than passed off as live. Excluded from the manifest since it changes as the node runs.'
+      ? 'Primary is the first choice. Secondary and Tertiary are backups, used in that order. Polls the status relay every 30s, or immediately with Sync telemetry. A reading older than 6 minutes is shown as stale rather than passed off as live; power status refreshes about every 5 minutes and is treated the same way after 15. Excluded from the manifest since it changes as the node runs.'
       : 'Placeholder until STATUS_ENDPOINT is set. Excluded from the manifest since it changes as the node runs.'}));
+    v.append(rawBlock(n));
     // Polling is started once, from show(), when this file is first opened —
     // never from here. This function repaints after every fetch (including
     // every auto-poll tick), so a startLivePolling() call here would restart
@@ -841,6 +713,19 @@ function sanitizeLive(d){
     active_network_link: clampEnum(d.active_network_link, ACTIVE_LEVELS),
   };
 }
+const BACKUP_STATES = ['ready', 'low', 'none'];
+const POWER_STALE_S = 900;   // 15 min: the Worker marks it stale too, but the page never trusts that alone
+function sanitizePower(body){
+  // Whitelist + clamp, same treatment as sanitizeLive: only these four fields, only these values.
+  const p = (body && typeof body === 'object') ? body.power : null;
+  if (!p || typeof p !== 'object') return null;
+  return {
+    state: (p.state === 'ok' || p.state === 'stale') ? p.state : null,
+    as_of: clampNum(p.as_of, 0, 4102444800),
+    active_layer: clampEnum(p.active_layer, ACTIVE_LEVELS),
+    backup: clampEnum(p.backup, BACKUP_STATES),
+  };
+}
 function pickLatestReading(body){
   // The exact response shape wasn't confirmed, so this doesn't assume one:
   // a single object under "latest" wins if present; otherwise the last
@@ -877,11 +762,14 @@ async function refreshLive(n){
     const r = await fetch(STATUS_ENDPOINT, {cache:'no-store', signal:ctrl.signal});
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const body = await r.json();
+    n.power = sanitizePower(body);
     const latest = pickLatestReading(body);
     if (latest && typeof latest.timestamp === 'number' && isFinite(latest.timestamp)){
       n.live = sanitizeLive(latest);
-      n.body = JSON.stringify(n.live, null, 2) + '\n';
       n.mtime = n.live.updated;
+    }
+    if (n.live){
+      n.body = JSON.stringify(Object.assign({}, n.live, {power: n.power}), null, 2) + '\n';
       n.size = enc.encode(n.body).length;
     }
     n.err = null;            // reachable, even if there's no reading yet
@@ -899,7 +787,11 @@ async function refreshLive(n){
   if (currentPath() === n.path && $('#view')) renderFile(n);
 }
 
-const currentPath = () => decodeURIComponent(location.hash.replace(/^#\/?/, ''));
+const currentPath = () => {
+  const raw = location.hash.replace(/^#\/?/, '');
+  try { return decodeURIComponent(raw); }
+  catch (e) { return raw; }        // a malformed %-sequence in the URL must not break the page
+};
 function show(p){
   p = p.replace(/\/+$/, '');
   if (p !== 'status/live.json'){ stopLivePolling(); stopTick(); }
@@ -932,7 +824,7 @@ function treeLines(d, prefix, lines){
 async function verify(){
   if (!hashed()[0].hash){ print('This browser can\u2019t compute SHA-256 here. Open the site over https.', 'bad'); return; }
   const man = nodes.get('manifest.sha256');
-  const expected = man.body.trim().split('\n').map(l => { const m = l.match(/^(\S+)\s+(.+)$/); return [m[2], m[1]]; });
+  const expected = man.body.trim().split('\n').map(l => { const m = l.match(/^(\S+)\s+(.+)$/); return m ? [m[2], m[1]] : null; }).filter(Boolean);
   print('recomputing ' + expected.length + ' hashes against manifest.sha256');
   let ok = 0;
   for (const [path, h] of expected){
