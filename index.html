@@ -1,5 +1,24 @@
 <!doctype html>
-<!-- trujara-fs build: v25 — 2026-09-27 — MOCKUP, NOT PUBLISHED — synced with trujara-gui build v11
+<!-- trujara-fs build: v27 — 2026-09-28 — MOCKUP, NOT PUBLISHED — synced with trujara-gui build v12
+     Changelog v26 -> v27: new DEGRADED state. If the reading is fresh but the
+       GPU isn't reporting (gpu_util_pct or gpu_in_use is null — the rig now
+       sends null, not made-up numbers, when nvidia-smi fails), STATE shows
+       amber DEGRADED with a one-line explanation instead of a green
+       OPERATIONAL. STALE and UNREACHABLE still take priority. GPU rows
+       already rendered null as a dash and IN USE as UNKNOWN; unchanged.
+     Changelog v25 -> v26: fixed a real transparency bug, caught by a live
+       screenshot after a genuine rig restart. STATE correctly flipped to
+       STALE (that part was already working) — but the sub-line still said
+       "UPDATED ... 2s ago", because that value came from when the browser
+       last successfully POLLED the Worker, not from the reading's own age.
+       A stale reading right next to "2s ago" reads as a contradiction.
+       Split into two honestly separate, distinctly labeled values:
+       CHECKED (poll success — confirms the Worker itself is reachable) and
+       READING (the actual data's real age — what STATE is based on).
+       Verified against the real code with a fake stale-but-reachable
+       scenario matching the report exactly: reading 11 minutes old, check
+       succeeded 2 seconds ago — confirmed STATE=STALE now renders next to
+       READING 11m ago, not a misleadingly fresh-looking timestamp.
      Changelog v24 -> v25: fixed "cat latest" — a longstanding bug, unrelated
        to the live.json redesign, first surfaced when clicked from a non-root
        folder. `latest` is a root-level shortcut (links to roadmap/now.txt),
@@ -190,6 +209,7 @@ pre.body{margin:0;background:var(--panel);border:1px solid var(--line);border-ra
   border-bottom:1px solid var(--line);border-radius:6px 6px 0 0}
 .stat-sticky-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .stat-sticky-sub{color:var(--muted);font-size:var(--fs-xs);margin-top:4px}
+.stat-sticky-note{color:var(--amber);font-size:var(--fs-xs);margin-top:4px}
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));column-gap:20px}
 .stat-card{padding:6px 0}
 .stat-card .stat-section{padding-top:8px}
@@ -617,7 +637,15 @@ function liveState(n){
   const upd = n.live && n.live.updated;
   if (!upd) return ['NOT CONNECTED', 'pending'];
   const age = (Date.now() - new Date(upd).getTime()) / 1000;
-  return age <= STALE_AFTER_S ? ['OPERATIONAL', 'ok'] : ['STALE', 'warn'];
+  if (age > STALE_AFTER_S) return ['STALE', 'warn'];
+  // Fresh data, but the GPU itself isn't reporting (driver down, card
+  // unreachable): the node is reachable and CPU/network/ambient are live,
+  // yet calling that OPERATIONAL would be a half-truth for a GPU node.
+  if (gpuUnknown(n.live)) return ['DEGRADED', 'warn'];
+  return ['OPERATIONAL', 'ok'];
+}
+function gpuUnknown(l){
+  return !l || l.gpu_util_pct == null || l.gpu_in_use == null;
 }
 function statRow(k, v, cls, src){
   return el('div', {class:'statrow'},
@@ -641,11 +669,17 @@ function liveStatsBlock(n){
   const live = n.live || {};
   const updatedIso = n.lastSuccessAt ? new Date(n.lastSuccessAt).toISOString() : null;
   const updated = updatedIso ? fmt(updatedIso) + (agoText(updatedIso) ? '  \u00b7  ' + agoText(updatedIso) : '') : '\u2014';
+  // The reading's own age is what actually drives STATE (see liveState()) —
+  // shown separately from CHECKED so the two can never look contradictory.
+  // A restarted/offline rig should show "STALE" right next to a reading
+  // age that's visibly growing, not a "just checked" timestamp that makes
+  // stale data look fresh.
+  const readingAgo = live.updated ? (agoText(live.updated) || 'just now') : '\u2014';
 
   // Sticky header: STATE + the Sync button stay visible the whole time,
   // pinned to the top of the viewport, regardless of how far the detail
-  // below runs or how tall the device screen is. NODE/UPDATED ride along
-  // as a smaller sub-line — reference info, not something scanned
+  // below runs or how tall the device screen is. NODE/CHECKED/READING ride
+  // along as a smaller sub-line — reference info, not something scanned
   // repeatedly — rather than each claiming a full row the way they used to.
   const onCooldown = n.fetching || Date.now() < (n.nextSyncAllowedAt || 0);
   const syncBtn = STATUS_ENDPOINT
@@ -655,8 +689,13 @@ function liveStatsBlock(n){
   if (syncBtn && onCooldown) syncBtn.disabled = true;
   const sticky = el('div', {class:'stat-sticky'},
     el('div', {class:'stat-sticky-row'}, statusTag(label, kind), syncBtn || el('span')),
-    el('div', {class:'stat-sticky-sub'}, 'NODE node01  \u00b7  UPDATED ',
-      el('span', {id:'updated-value', 'aria-live':'off', text:updated})));
+    el('div', {class:'stat-sticky-sub'}, 'NODE node01  \u00b7  CHECKED ',
+      el('span', {id:'updated-value', 'aria-live':'off', text:updated}),
+      '  \u00b7  READING ',
+      el('span', {id:'reading-age-value', 'aria-live':'off', text:readingAgo})),
+    label === 'DEGRADED'
+      ? el('div', {class:'stat-sticky-note', text:'GPU not reporting \u2014 CPU, network and ambient readings are live.'})
+      : null);
 
   // Two-column responsive grid. Every field that used to be one long
   // stacked list is now reflowed into cards so related fields sit side by
@@ -751,10 +790,15 @@ function stopTick(){ if (tickTimer){ clearInterval(tickTimer); tickTimer = null;
 function startTick(n){
   stopTick();
   tickTimer = setInterval(() => {
-    const target = document.getElementById('updated-value');
-    if (!target){ stopTick(); return; } // navigated away; DOM's gone, nothing left to tick
+    const checkedTarget = document.getElementById('updated-value');
+    const readingTarget = document.getElementById('reading-age-value');
+    if (!checkedTarget){ stopTick(); return; } // navigated away; DOM's gone, nothing left to tick
     const iso = n.lastSuccessAt ? new Date(n.lastSuccessAt).toISOString() : null;
-    target.textContent = iso ? fmt(iso) + (agoText(iso) ? '  \u00b7  ' + agoText(iso) : '') : '\u2014';
+    checkedTarget.textContent = iso ? fmt(iso) + (agoText(iso) ? '  \u00b7  ' + agoText(iso) : '') : '\u2014';
+    if (readingTarget){
+      const live = n.live || {};
+      readingTarget.textContent = live.updated ? (agoText(live.updated) || 'just now') : '\u2014';
+    }
   }, 1000);
 }
 function clampNum(v, min, max){
